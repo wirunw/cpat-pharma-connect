@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
         <Link to="/" className="py-3 border-b border-blue-800" onClick={onClose}>หน้าแรก</Link>
         <Link to="/about" className="py-3 border-b border-blue-800" onClick={onClose}>เกี่ยวกับเรา</Link>
         <Link to="/admission" className="py-3 border-b border-blue-800" onClick={onClose}>การรับสมัคร</Link>
+        <Link to="/blog" className="py-3 border-b border-blue-800" onClick={onClose}>บทความ</Link>
         <Link to="/contact" className="py-3 border-b border-blue-800" onClick={onClose}>ติดต่อเรา</Link>
       </nav>
       
