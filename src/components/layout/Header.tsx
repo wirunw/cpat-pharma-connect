@@ -28,6 +28,7 @@ const Header = () => {
           <Link to="/" className="hover:text-yellow-500 font-medium">หน้าหลัก</Link>
           <Link to="/about" className="hover:text-yellow-500 font-medium">เกี่ยวกับเรา</Link>
           <Link to="/admission" className="hover:text-yellow-500 font-medium">การรับสมัคร</Link>
+          <Link to="/blog" className="hover:text-yellow-500 font-medium">บทความ</Link>
           <Link to="/contact" className="hover:text-yellow-500 font-medium">ติดต่อเรา</Link>
         </nav>
         

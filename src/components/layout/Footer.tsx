@@ -14,7 +14,7 @@ const Footer = () => {
               College of Pharmacy Administration of Thailand (CPAT)
             </p>
             <div className="flex space-x-4">
-              <a href="https://facebook.com/CPATThailand" className="hover:text-yellow-400" aria-label="Facebook">
+              <a href="https://www.facebook.com/CPATThailand" target="_blank" rel="noopener noreferrer" className="hover:text-yellow-400" aria-label="Facebook">
                 <Facebook className="h-6 w-6" />
               </a>
             </div>
@@ -31,6 +31,9 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/admission" className="hover:text-yellow-400">การรับสมัคร</Link>
+              </li>
+              <li>
+                <Link to="/blog" className="hover:text-yellow-400">บทความ</Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-yellow-400">ติดต่อเรา</Link>
