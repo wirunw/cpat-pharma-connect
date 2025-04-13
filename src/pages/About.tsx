@@ -123,7 +123,7 @@ const About = () => {
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
-                <p className="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">500+</p>
+                <p className="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">50+</p>
                 <p className="text-lg">ผู้สำเร็จการศึกษา</p>
               </div>
               
@@ -133,7 +133,7 @@ const About = () => {
               </div>
               
               <div>
-                <p className="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">30+</p>
+                <p className="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">48+</p>
                 <p className="text-lg">อาจารย์ผู้เชี่ยวชาญ</p>
               </div>
               
