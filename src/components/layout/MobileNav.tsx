@@ -30,6 +30,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
       
       <nav className="flex flex-col gap-4 p-6 text-xl">
         <Link to="/" className="py-3 border-b border-blue-800" onClick={onClose}>หน้าแรก</Link>
+        <Link to="/home" className="py-3 border-b border-blue-800" onClick={onClose}>หน้าหลัก</Link>
         <Link to="/about" className="py-3 border-b border-blue-800" onClick={onClose}>เกี่ยวกับเรา</Link>
         <Link to="/admission" className="py-3 border-b border-blue-800" onClick={onClose}>การรับสมัคร</Link>
         <Link to="/blog" className="py-3 border-b border-blue-800" onClick={onClose}>บทความ</Link>
