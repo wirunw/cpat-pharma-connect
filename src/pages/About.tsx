@@ -35,7 +35,7 @@ const About = () => {
                 />
               </div>
               <div className="md:w-2/3">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6">สารจากคณบดี</h2>
+                <h2 className="text-3xl font-bold text-blue-900 mb-6">สารจากผู้อำนวยการ</h2>
                 <div className="text-gray-700 space-y-4">
                   <p>
                     สวัสดีครับ ในนามของวิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย ผมขอต้อนรับทุกท่านเข้าสู่แหล่งการเรียนรู้ที่จะพัฒนาศักยภาพของเภสัชกรไทยสู่ความเป็นเลิศทางการบริหาร
