@@ -257,6 +257,15 @@ const Admission = () => {
           </div>
         </section>
 
+              {/* Call to Action Section */}
+        <section className="py-20 px-4 bg-blue-900 text-white text-center">
+          <h2 className="text-4xl font-bold mb-4">🚀 พร้อมที่จะเริ่มต้นการเดินทางกับเรา?</h2>
+          <p className="text-xl mb-8">เปิดโอกาสให้ตัวคุณได้พัฒนาทักษะการบริหารและก้าวสู่การเป็นผู้นำในวงการเภสัชกรรม</p>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
+            <button className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-semibold px-6 py-3 rounded-lg transition shadow-md">ดูหลักสูตรทั้งหมด</button>
+            <button className="bg-white hover:bg-gray-100 text-blue-900 font-semibold px-6 py-3 rounded-lg transition shadow-md">ติดต่อผู้เชี่ยวชาญ</button>
+          </div>
+        </section>
         
         {/* FAQ */}
         <section className="py-16 px-4 bg-blue-50">
