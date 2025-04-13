@@ -176,9 +176,7 @@ const Admission = () => {
             </Card>
           </div>
         </div>
-      </section>
-
-        {/* Call to Action after tuition cards */}
+         {/* Call to Action after tuition cards */}
       <div className="mt-12 text-center">
         <h3 className="text-2xl font-semibold text-blue-900 mb-4">
           สนใจเข้าเรียนกับเรา?
@@ -193,6 +191,9 @@ const Admission = () => {
           สมัครเรียน
         </Button>
       </div>
+      </section>
+
+       
         
         {/* Course Competencies */}
         <section className="py-16 px-4 bg-white">
