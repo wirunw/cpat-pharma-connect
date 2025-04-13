@@ -117,7 +117,7 @@ const Admission = () => {
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-1" />
-                    ระยะเวลาอบรมไม่แน่นอน ขึ้นกับหลักสูตร
+                    ระยะเวลาอบรมโดยทั่วไปอยู่ที่ 16 สัปดาห์ แต่ทั้งนี้ ขึ้นกับหลักสูตร
                   </li>
                 </ul>
               </CardContent>
