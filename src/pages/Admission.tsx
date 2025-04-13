@@ -195,104 +195,61 @@ const Admission = () => {
 
        
         
-        {/* Course Competencies */}
+        {/* Cpat Program Overview */}
         <section className="py-16 px-4 bg-white">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-blue-900 mb-4">หลักสูตรพัฒนาสมรรถนะ</h2>
+              <h2 className="text-3xl font-bold text-blue-900 mb-4">หลักสูตรวุฒิบัตรฯ สาขาการบริหารเภสัชกิจ</h2>
               <p className="text-xl text-blue-700 max-w-3xl mx-auto">
-                สมรรถนะที่ผู้เรียนจะได้รับการพัฒนาตลอดหลักสูตรการศึกษา
+                หลักสูตรจากวิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย สภาเภสัชกรรม พ.ศ. 2566
               </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div className="bg-blue-50 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-blue-900 mb-4">ด้านการจัดการธุรกิจ</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การวางแผนธุรกิจและการจัดทำงบประมาณ</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การวิเคราะห์การเงินและบัญชีสำหรับธุรกิจเภสัชกรรม</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การบริหารความเสี่ยงและการปฏิบัติตามกฎระเบียบ</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การตลาดสำหรับธุรกิจเภสัชกรรมและสุขภาพ</span>
-                  </li>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              {/* ชื่อหลักสูตรและวุฒิบัตร */}
+              <div className="bg-blue-50 p-6 rounded-lg shadow">
+                <h3 className="text-xl font-bold text-blue-900 mb-4">1. ชื่อหลักสูตรและวุฒิบัตร</h3>
+                <ul className="text-gray-700 space-y-2 list-disc list-inside">
+                  <li><strong>ชื่อหลักสูตร:</strong> วุฒิบัตรเป็นผู้มีความรู้ความชำนาญในการประกอบวิชาชีพเภสัชกรรม สาขาการบริหารเภสัชกิจ (Fellowship in Pharmacy Administration Training Program)</li>
+                  <li><strong>ชื่อวุฒิบัตร:</strong> ว.ภ. (การบริหารเภสัชกิจ) / FCPA</li>
+                  <li><strong>หน่วยงานรับผิดชอบ:</strong> วิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย สภาเภสัชกรรม</li>
                 </ul>
               </div>
-              
-              <div className="bg-blue-50 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-blue-900 mb-4">ด้านการบริหารจัดการทรัพยากร</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การบริหารทรัพยากรบุคคลและการพัฒนาทีม</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การบริหารคลังสินค้าและห่วงโซ่อุปทาน</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การจัดการคุณภาพและมาตรฐานในงานเภสัชกรรม</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การประยุกต์ใช้เทคโนโลยีสารสนเทศในงานเภสัชกรรม</span>
-                  </li>
-                </ul>
+
+              {/* ปรัชญาและวัตถุประสงค์ */}
+              <div className="bg-blue-50 p-6 rounded-lg shadow">
+                <h3 className="text-xl font-bold text-blue-900 mb-4">2. ปรัชญาและวัตถุประสงค์</h3>
+                <p className="text-gray-700 mb-3">
+                  <strong>ปรัชญา:</strong> สร้างเภสัชกรให้เชี่ยวชาญด้านการบริหารเภสัชกิจตลอดห่วงโซ่คุณค่างานเภสัชกรรม เพื่อให้ประชาชนและบุคลากรการแพทย์เข้าถึงยา ผลิตภัณฑ์สุขภาพ และบริการอย่างปลอดภัย คุ้มค่า และเป็นผู้นำการเปลี่ยนแปลง
+                </p>
+                <p className="text-gray-700">
+                  <strong>วัตถุประสงค์:</strong> เป็นผู้นำการเปลี่ยนแปลง มีทักษะผู้ประกอบการ เรียนรู้ตลอดชีวิต มุมมองนานาชาติ และความเชี่ยวชาญในสาขาบริหารเภสัชกิจอย่างน้อย 1 ด้าน โดยเน้น Personalized Education ให้ผู้เรียนสามารถออกแบบแผนการเรียนได้เอง
+                </p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-blue-50 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-blue-900 mb-4">ด้านภาวะผู้นำและการจัดการ</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การพัฒนาภาวะผู้นำและทักษะการตัดสินใจ</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การสื่อสารเชิงกลยุทธ์และการเจรจาต่อรอง</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การบริหารการเปลี่ยนแปลงและนวัตกรรม</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">จริยธรรมในการบริหารและความรับผิดชอบต่อสังคม</span>
-                  </li>
+              {/* ความเชี่ยวชาญหลัก */}
+              <div className="bg-blue-50 p-6 rounded-lg shadow">
+                <h3 className="text-xl font-bold text-blue-900 mb-4">3. ความเชี่ยวชาญหลัก (Functional Competency - FC)</h3>
+                <ul className="text-gray-700 space-y-2 list-disc list-inside">
+                  <li>FC1: การจัดการนวัตกรรมด้านยา</li>
+                  <li>FC2: การจัดการห่วงโซ่อุปทานด้านยาและผลิตภัณฑ์สุขภาพ</li>
+                  <li>FC3: การประเมินเทคโนโลยีด้านสุขภาพ และการจัดการสิทธิประโยชน์ของประชาชนทางเภสัชกรรม</li>
+                  <li>FC4: เภสัชสารสนเทศและการจัดการข้อมูล</li>
+                  <li>FC5: การออกแบบระบบและบริหารนโยบายด้านยาและสุขภาพ</li>
                 </ul>
               </div>
-              
-              <div className="bg-blue-50 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-blue-900 mb-4">ด้านการวิจัยและพัฒนา</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การออกแบบและดำเนินการวิจัยด้านเภสัชกรรม</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การวิเคราะห์ข้อมูลและการตัดสินใจเชิงหลักฐาน</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การพัฒนานวัตกรรมและการจัดการทรัพย์สินทางปัญญา</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">การเขียนโครงการและการนำเสนอผลงานวิชาการ</span>
-                  </li>
+
+              {/* สมรรถนะหลัก */}
+              <div className="bg-blue-50 p-6 rounded-lg shadow">
+                <h3 className="text-xl font-bold text-blue-900 mb-4">4. สมรรถนะหลัก (Core Competency - CC)</h3>
+                <ul className="text-gray-700 space-y-2 list-disc list-inside">
+                  <li>CC1: Lead & Entrepreneurship (การคิดเชิงระบบ, การแก้ปัญหา ฯลฯ)</li>
+                  <li>CC2: Professional Liaison (การนำเสนอ, การสื่อสาร, การเขียนเชิงวิชาการ)</li>
+                  <li>CC3: Envision global perspective (มุมมองระดับนานาชาติ)</li>
+                  <li>CC4: Professional Anchor (การเรียนรู้ตลอดชีวิต, ธรรมาภิบาล)</li>
+                  <li>CC5: Digital Transformation (ความรู้ดิจิทัล, การจัดการข้อมูล)</li>
                 </ul>
               </div>
             </div>
