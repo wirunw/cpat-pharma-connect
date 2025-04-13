@@ -117,7 +117,7 @@ const Admission = () => {
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-1" />
-                    ระยะเวลาอบรมโดยทั่วไปอยู่ที่ 16 สัปดาห์ แต่ทั้งนี้ ขึ้นกับหลักสูตร
+                    ระยะเวลาอบรมไม่แน่นอน ขึ้นกับหลักสูตร
                   </li>
                 </ul>
               </CardContent>
@@ -347,7 +347,7 @@ const Admission = () => {
               <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold">
                 สมัครเรียนทันที
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white text-blue-900 hover:bg-white/10">
                 ขอคำปรึกษา
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
