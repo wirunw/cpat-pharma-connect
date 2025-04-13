@@ -177,6 +177,22 @@ const Admission = () => {
           </div>
         </div>
       </section>
+
+        {/* Call to Action after tuition cards */}
+      <div className="mt-12 text-center">
+        <h3 className="text-2xl font-semibold text-blue-900 mb-4">
+          สนใจเข้าเรียนกับเรา?
+        </h3>
+        <p className="text-lg text-gray-700 mb-6 max-w-xl mx-auto">
+          วิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย (CPAT) ยินดีต้อนรับผู้เรียนทุกท่านที่ต้องการพัฒนาทักษะด้านการบริหารในวงการเภสัชกรรม
+        </p>
+        <Button
+          size="lg"
+          className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold px-8 py-3"
+        >
+          สมัครเรียน
+        </Button>
+      </div>
         
         {/* Course Competencies */}
         <section className="py-16 px-4 bg-white">
