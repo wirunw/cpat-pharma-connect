@@ -251,7 +251,7 @@ const About = () => {
               <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold">
                 ดูหลักสูตรทั้งหมด
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-blue-900  hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white text-blue-900 hover:bg-white/10">
                 ติดต่อผู้เชี่ยวชาญ
               </Button>
             </div>
