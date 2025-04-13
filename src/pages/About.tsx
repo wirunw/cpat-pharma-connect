@@ -161,7 +161,7 @@ const About = () => {
                   <p className="text-xl italic text-gray-700 mb-4">
                     "การศึกษาไม่ได้หยุดเพียงแค่ในห้องเรียน แต่เป็นเส้นทางตลอดชีวิตที่จะพัฒนาคุณให้เติบโตและปรับตัวในโลกที่เปลี่ยนแปลงอยู่เสมอ"
                   </p>
-                  <p className="font-semibold text-right">- รศ.ดร.ภญ.รุ่งเพ็ชร สกุลบำรุงศิลป์ </p>
+                  <p className="font-semibold text-right">- ศ.ภก.ดร. วิชัย สันติมาลีวรกุล</p>
                 </CardContent>
               </Card>
               
@@ -170,7 +170,7 @@ const About = () => {
                   <p className="text-xl italic text-gray-700 mb-4">
                     "ความรู้ทางเภสัชศาสตร์เมื่อผสานกับทักษะการบริหาร จะสร้างผู้นำที่สามารถยกระดับระบบสาธารณสุขของประเทศได้อย่างแท้จริง"
                   </p>
-                  <p className="font-semibold text-right">- ดร.ภก.ทวีศักดิ์ สีทองสุรภณา</p>
+                  <p className="font-semibold text-right">- รศ.ภญ.ดร. สุนทรี วิทยานารถไพศาล</p>
                 </CardContent>
               </Card>
             </div>
@@ -251,7 +251,7 @@ const About = () => {
               <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold">
                 ดูหลักสูตรทั้งหมด
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white text-blue-900  hover:bg-white/10">
                 ติดต่อผู้เชี่ยวชาญ
               </Button>
             </div>
