@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { X } from "lucide-react";
+import { Lock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MobileNavProps {
@@ -35,6 +35,10 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
         <Link to="/admission" className="py-3 border-b border-blue-800" onClick={onClose}>การรับสมัคร</Link>
         <Link to="/blog" className="py-3 border-b border-blue-800" onClick={onClose}>บทความ</Link>
         <Link to="/contact" className="py-3 border-b border-blue-800" onClick={onClose}>ติดต่อเรา</Link>
+        <Link to="/admin/login" className="py-3 border-b border-blue-800 flex items-center gap-2" onClick={onClose}>
+          <Lock className="h-5 w-5" />
+          <span>เข้าสู่ระบบผู้ดูแล</span>
+        </Link>
       </nav>
       
       <div className="mt-auto p-6">
