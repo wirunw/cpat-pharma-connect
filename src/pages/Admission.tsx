@@ -89,129 +89,31 @@ const Admission = () => {
         
         {/* Tuition & Fees */}
         <section className="py-16 px-4 bg-blue-50">
-          <div className="container mx-auto max-w-6xl">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-blue-900 mb-4">ค่าธรรมเนียมการศึกษา</h2>
-              <p className="text-xl text-blue-700 max-w-3xl mx-auto">
-                ค่าใช้จ่ายสำหรับการศึกษาในหลักสูตรต่างๆ ของ CPAT
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Program 1 */}
-              <Card className="overflow-hidden">
-                <div className="bg-blue-700 text-white p-4 text-center">
-                  <h3 className="text-xl font-bold">หลักสูตรประกาศนียบัตร</h3>
-                  <p className="text-sm">ระยะเวลา 6 เดือน</p>
-                </div>
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
-                    <p className="text-3xl font-bold text-blue-900">45,000 บาท</p>
-                    <p className="text-gray-500 text-sm">ชำระครั้งเดียว หรือผ่อนชำระได้</p>
-                  </div>
-                  
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">การเรียนการสอน 180 ชั่วโมง</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">เอกสารประกอบการเรียน</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">การศึกษาดูงาน 1 ครั้ง</span>
-                    </li>
-                  </ul>
-                  
-                  <div className="mt-6 text-center">
-                    <Button className="w-full">สมัครเรียน</Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Program 2 */}
-              <Card className="overflow-hidden border-2 border-yellow-500 relative">
-                <div className="absolute top-0 right-0 bg-yellow-500 text-blue-900 py-1 px-3 text-sm font-bold">
-                  แนะนำ
-                </div>
-                <div className="bg-blue-800 text-white p-4 text-center">
-                  <h3 className="text-xl font-bold">หลักสูตรวุฒิบัตร</h3>
-                  <p className="text-sm">ระยะเวลา 1 ปี</p>
-                </div>
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
-                    <p className="text-3xl font-bold text-blue-900">85,000 บาท</p>
-                    <p className="text-gray-500 text-sm">ชำระครั้งเดียว หรือผ่อนชำระได้</p>
-                  </div>
-                  
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">การเรียนการสอน 360 ชั่วโมง</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">เอกสารและอุปกรณ์การเรียน</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">การศึกษาดูงาน 2 ครั้ง</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">โครงการพิเศษ 1 โครงการ</span>
-                    </li>
-                  </ul>
-                  
-                  <div className="mt-6 text-center">
-                    <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold">
-                      สมัครเรียน
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Program 3 */}
-              <Card className="overflow-hidden">
-                <div className="bg-blue-900 text-white p-4 text-center">
-                  <h3 className="text-xl font-bold">หลักสูตรมืออาชีพ</h3>
-                  <p className="text-sm">ระยะเวลา 2 ปี</p>
-                </div>
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
-                    <p className="text-3xl font-bold text-blue-900">150,000 บาท</p>
-                    <p className="text-gray-500 text-sm">ชำระครั้งเดียว หรือผ่อนชำระได้</p>
-                  </div>
-                  
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">การเรียนการสอน 720 ชั่วโมง</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">เอกสารและอุปกรณ์การเรียนครบชุด</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">การศึกษาดูงานทั้งในและต่างประเทศ</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">โครงการพิเศษและที่ปรึกษาส่วนตัว</span>
-                    </li>
-                  </ul>
-                  
-                  <div className="mt-6 text-center">
-                    <Button className="w-full">สมัครเรียน</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
+  <div className="container mx-auto max-w-6xl">
+    <div className="text-center mb-12">
+      <h2 className="text-3xl font-bold text-blue-900 mb-4">ค่าธรรมเนียมการศึกษา</h2>
+      <p className="text-xl text-blue-700 max-w-3xl mx-auto">
+        ค่าใช้จ่ายสำหรับการศึกษาในหลักสูตรต่าง ๆ ของ CPAT
+      </p>
+    </div>
+
+    <div className="bg-white p-8 rounded-lg shadow-md text-gray-800 space-y-6 text-lg leading-relaxed">
+      <p>
+        <strong>17.1</strong> รายวิชาการฝึกอบรมระยะสั้นทางการบริหารเภสัชกิจ ไม่น้อยกว่า <strong>30,000 บาทต่อหลักสูตร</strong><br />
+        (สถาบันหลักผู้รับผิดชอบหลักสูตรอบรมระยะสั้นเป็นผู้กำหนด)
+      </p>
+      <p>
+        <strong>17.2</strong> รายวิชาปฏิบัติการทำโครงงานการบริหารเภสัชกิจ ค่าลงทะเบียน<strong>หน่วยกิตละ 2,500 บาท</strong>
+      </p>
+      <p>
+        <strong>17.3</strong> ค่าใช้จ่ายอื่นนอกเหนือค่าธรรมเนียมการเรียน: 
+        ค่าธรรมเนียมการสอบเพื่อรับวุฒิบัตรเป็นผู้มีความรู้ความชำนาญในการประกอบวิชาชีพเภสัชกรรมสาขาบริหารเภสัชกิจตามที่สภาเภสัชกรรมกำหนด, 
+        ค่าใช้จ่ายกรณีที่มีความสมัครใจไปศึกษาดูงานต่างประเทศในบางกระบวนวิชาของหลักสูตรระยะสั้น, 
+        ค่าตีพิมพ์ผลงานวิชาการ ขึ้นกับอัตราที่วารสารนั้นกำหนด
+      </p>
+    </div>
+  </div>
+</section>
         
         {/* Course Competencies */}
         <section className="py-16 px-4 bg-white">
