@@ -44,13 +44,18 @@ const SubscriptionsManager = () => {
   const fetchSubscribers = async () => {
     setIsLoading(true);
     try {
+      console.log("Fetching subscribers...");
       const { data, error } = await supabase
         .from('subscribers')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching subscribers:', error);
+        throw error;
+      }
       
+      console.log("Subscribers data:", data);
       setSubscribers(data || []);
     } catch (error: any) {
       console.error('Error fetching subscribers:', error.message);
@@ -61,6 +66,7 @@ const SubscriptionsManager = () => {
   };
 
   useEffect(() => {
+    console.log("SubscriptionsManager component mounted");
     fetchSubscribers();
   }, []);
 
@@ -79,11 +85,16 @@ const SubscriptionsManager = () => {
     
     try {
       // Check if email already exists
-      const { data: existingData } = await supabase
+      const { data: existingData, error: checkError } = await supabase
         .from('subscribers')
         .select('id')
         .eq('email', newEmail.toLowerCase())
-        .single();
+        .maybeSingle();
+        
+      if (checkError) {
+        console.error("Error checking existing email:", checkError);
+        throw checkError;
+      }
 
       if (existingData) {
         toast.error("อีเมลนี้มีอยู่ในระบบแล้ว");
@@ -100,7 +111,7 @@ const SubscriptionsManager = () => {
       const year = today.getFullYear() + 543; // Convert to Buddhist Era
       const formattedDate = `${day} ${month} ${year}`;
       
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('subscribers')
         .insert([
           {
@@ -110,7 +121,10 @@ const SubscriptionsManager = () => {
           }
         ]);
       
-      if (error) throw error;
+      if (insertError) {
+        console.error("Error inserting subscriber:", insertError);
+        throw insertError;
+      }
       
       await fetchSubscribers();
       setNewEmail("");
@@ -136,7 +150,10 @@ const SubscriptionsManager = () => {
         .delete()
         .eq('id', selectedSubscriber.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting subscriber:", error);
+        throw error;
+      }
       
       await fetchSubscribers();
       setIsDeleteDialogOpen(false);

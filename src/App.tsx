@@ -33,12 +33,15 @@ const queryClient = new QueryClient({
 
 function App() {
   const [storageInitialized, setStorageInitialized] = useState(false);
+  const [initAttempts, setInitAttempts] = useState(0);
 
   // Initialize the storage bucket when the app loads
   useEffect(() => {
+    const maxAttempts = 5; // Maximum number of retry attempts
+    
     const init = async () => {
       try {
-        console.log("Initializing storage bucket...");
+        console.log(`Storage initialization attempt ${initAttempts + 1}/${maxAttempts}...`);
         const result = await initializeStorageBucket();
         console.log("Storage bucket initialization result:", result);
         
@@ -47,18 +50,30 @@ function App() {
           setStorageInitialized(true);
         } else {
           console.error("Storage bucket initialization failed:", result.error);
-          // Try again after 3 seconds if it failed
-          setTimeout(() => init(), 3000);
+          // Try again if we haven't reached the maximum number of attempts
+          if (initAttempts < maxAttempts - 1) {
+            setInitAttempts(prev => prev + 1);
+            setTimeout(() => init(), 3000);
+          } else {
+            console.error(`Failed to initialize storage bucket after ${maxAttempts} attempts`);
+          }
         }
       } catch (error) {
         console.error("Error initializing storage bucket:", error);
-        // Try again after 3 seconds if it failed
-        setTimeout(() => init(), 3000);
+        // Try again if we haven't reached the maximum number of attempts
+        if (initAttempts < maxAttempts - 1) {
+          setInitAttempts(prev => prev + 1);
+          setTimeout(() => init(), 3000);
+        } else {
+          console.error(`Failed to initialize storage bucket after ${maxAttempts} attempts`);
+        }
       }
     };
     
-    init();
-  }, []);
+    if (!storageInitialized) {
+      init();
+    }
+  }, [initAttempts, storageInitialized]);
 
   return (
     <QueryClientProvider client={queryClient}>
