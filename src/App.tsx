@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { initializeStorageBucket } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
@@ -22,13 +22,28 @@ import MessagesManager from "./pages/admin/MessagesManager";
 import SubscriptionsManager from "./pages/admin/SubscriptionsManager";
 
 // Create a query client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function App() {
+  const [storageInitialized, setStorageInitialized] = useState(false);
+
   // Initialize the storage bucket when the app loads
   useEffect(() => {
     const init = async () => {
-      await initializeStorageBucket();
+      try {
+        const result = await initializeStorageBucket();
+        console.log("Storage bucket initialization result:", result);
+        setStorageInitialized(true);
+      } catch (error) {
+        console.error("Error initializing storage bucket:", error);
+      }
     };
     
     init();

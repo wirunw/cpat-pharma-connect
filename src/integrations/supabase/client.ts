@@ -14,15 +14,43 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 // Initialize the storage bucket
 export const initializeStorageBucket = async () => {
   try {
-    const { data, error } = await supabase.functions.invoke('create-storage-bucket');
+    // Check if the images bucket already exists by trying to get its details
+    const { data: bucketData, error: bucketError } = await supabase
+      .storage
+      .getBucket('images');
     
-    if (error) {
-      console.error('Error initializing storage bucket:', error);
-      return { success: false, error };
+    // If the bucket doesn't exist, create it
+    if (bucketError && bucketError.message.includes('The resource was not found')) {
+      console.log('Images bucket not found, creating it...');
+      
+      // Create the bucket
+      const { data, error } = await supabase
+        .storage
+        .createBucket('images', {
+          public: true,
+          fileSizeLimit: 10485760, // 10MB
+        });
+      
+      if (error) {
+        console.error('Error creating images bucket:', error);
+        return { success: false, error };
+      }
+      
+      // Set up public policies for the bucket
+      await supabase
+        .storage
+        .from('images')
+        .createSignedUrl('dummy.txt', 60);
+        
+      console.log('Images bucket created successfully');
+      return { success: true, data };
+    } else if (bucketError) {
+      console.error('Error checking for images bucket:', bucketError);
+      return { success: false, error: bucketError };
+    } else {
+      console.log('Images bucket already exists');
+      return { success: true, data: bucketData };
     }
-    
-    console.log('Storage bucket initialized:', data);
-    return { success: true, data };
   } catch (error) {
     console.error('Failed to initialize storage bucket:', error);
     return { success: false, error };

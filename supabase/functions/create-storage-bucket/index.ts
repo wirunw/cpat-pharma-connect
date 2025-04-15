@@ -46,14 +46,14 @@ serve(async (req) => {
 
       console.log('Successfully created images bucket');
       
-      // Set up public access policy for the images bucket
-      const { error: policyError } = await supabaseAdmin
+      // Set up public read policy for the images bucket
+      const { error: readPolicyError } = await supabaseAdmin
         .storage
         .from('images')
         .createPolicy(
           'public-read',
           {
-            name: 'public-read',
+            name: 'Public Read Policy',
             definition: {
               statements: [
                 {
@@ -66,18 +66,18 @@ serve(async (req) => {
           }
         );
         
-      if (policyError) {
-        console.error('Policy creation error:', policyError);
+      if (readPolicyError) {
+        console.error('Read policy creation error:', readPolicyError);
       }
 
-      // Set up upload policy for the images bucket
+      // Set up public upload policy for the images bucket
       const { error: uploadPolicyError } = await supabaseAdmin
         .storage
         .from('images')
         .createPolicy(
           'public-upload',
           {
-            name: 'public-upload',
+            name: 'Public Upload Policy',
             definition: {
               statements: [
                 {
@@ -93,12 +93,36 @@ serve(async (req) => {
       if (uploadPolicyError) {
         console.error('Upload policy creation error:', uploadPolicyError);
       }
+      
+      // Set up public update policy for the images bucket
+      const { error: updatePolicyError } = await supabaseAdmin
+        .storage
+        .from('images')
+        .createPolicy(
+          'public-update',
+          {
+            name: 'Public Update Policy',
+            definition: {
+              statements: [
+                {
+                  effect: 'allow',
+                  action: 'update',
+                  role: 'anon',
+                },
+              ],
+            },
+          }
+        );
+        
+      if (updatePolicyError) {
+        console.error('Update policy creation error:', updatePolicyError);
+      }
     } else {
       console.log('Images bucket already exists');
     }
 
     return new Response(
-      JSON.stringify({ message: 'Storage bucket setup complete' }),
+      JSON.stringify({ message: 'Storage bucket setup complete', bucketExists: imagesBucketExists }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
