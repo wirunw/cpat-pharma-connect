@@ -10,3 +10,21 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+// Initialize the storage bucket
+export const initializeStorageBucket = async () => {
+  try {
+    const { data, error } = await supabase.functions.invoke('create-storage-bucket');
+    
+    if (error) {
+      console.error('Error initializing storage bucket:', error);
+      return { success: false, error };
+    }
+    
+    console.log('Storage bucket initialized:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Failed to initialize storage bucket:', error);
+    return { success: false, error };
+  }
+};

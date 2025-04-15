@@ -25,6 +25,10 @@ serve(async (req) => {
       .storage
       .listBuckets();
 
+    if (listError) {
+      throw listError;
+    }
+
     const imagesBucketExists = buckets?.some(bucket => bucket.name === 'images');
 
     if (!imagesBucketExists) {
@@ -42,14 +46,52 @@ serve(async (req) => {
 
       console.log('Successfully created images bucket');
       
-      // Set up a policy to allow public access
+      // Set up public access policy for the images bucket
       const { error: policyError } = await supabaseAdmin
         .storage
         .from('images')
-        .createSignedUrl('dummy.txt', 60); // This is just to initialize the bucket
+        .createPolicy(
+          'public-read',
+          {
+            name: 'public-read',
+            definition: {
+              statements: [
+                {
+                  effect: 'allow',
+                  action: 'select',
+                  role: 'anon',
+                },
+              ],
+            },
+          }
+        );
         
-      if (policyError && !policyError.message.includes('not found')) {
-        throw policyError;
+      if (policyError) {
+        console.error('Policy creation error:', policyError);
+      }
+
+      // Set up upload policy for the images bucket
+      const { error: uploadPolicyError } = await supabaseAdmin
+        .storage
+        .from('images')
+        .createPolicy(
+          'public-upload',
+          {
+            name: 'public-upload',
+            definition: {
+              statements: [
+                {
+                  effect: 'allow',
+                  action: 'insert',
+                  role: 'anon',
+                },
+              ],
+            },
+          }
+        );
+        
+      if (uploadPolicyError) {
+        console.error('Upload policy creation error:', uploadPolicyError);
       }
     } else {
       console.log('Images bucket already exists');

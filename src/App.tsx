@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { initializeStorageBucket } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -23,6 +25,15 @@ import SubscriptionsManager from "./pages/admin/SubscriptionsManager";
 const queryClient = new QueryClient();
 
 function App() {
+  // Initialize the storage bucket when the app loads
+  useEffect(() => {
+    const init = async () => {
+      await initializeStorageBucket();
+    };
+    
+    init();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
