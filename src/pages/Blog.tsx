@@ -38,7 +38,15 @@ const Blog = () => {
       }
       
       console.log("Blog posts data:", data);
-      console.log("Number of posts returned:", data?.length);
+      
+      // Debug the data we're getting
+      if (data && data.length > 0) {
+        console.log("Number of posts returned:", data.length);
+        console.log("First post title:", data[0].title);
+        console.log("First post status:", data[0].status);
+      } else {
+        console.log("No posts returned or data is empty");
+      }
       
       setBlogPosts(data || []);
     } catch (error: any) {

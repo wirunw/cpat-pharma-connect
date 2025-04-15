@@ -16,22 +16,23 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   const handleLogout = async () => {
     try {
-      // First try to sign out
+      // Attempt to sign out
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error("Logout error:", error);
         toast.error("ออกจากระบบไม่สำเร็จ");
       } else {
+        // Always navigate on logout attempt, regardless of success/failure
+        navigate("/admin/login");
+        // Show success message after navigation is triggered
         toast.success("ออกจากระบบสำเร็จ");
-        // Only navigate after successful logout
-        setTimeout(() => {
-          navigate("/admin/login");
-        }, 500); // Small delay to ensure toast is visible
       }
     } catch (error: any) {
       console.error("Logout error:", error.message);
       toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+      // Still attempt to navigate even if there was an error
+      navigate("/admin/login");
     }
   };
 

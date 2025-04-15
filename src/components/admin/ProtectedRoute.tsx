@@ -15,6 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     // First check if there's an active session
     const checkSession = async () => {
       try {
+        console.log("Checking session...");
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -29,6 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           return;
         }
         
+        console.log("Session found, user is authenticated");
         setIsLoading(false);
       } catch (error: any) {
         console.error("Session check error:", error.message);
