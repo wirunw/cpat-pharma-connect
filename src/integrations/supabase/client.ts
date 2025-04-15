@@ -45,17 +45,17 @@ export const initializeStorageBucket = async () => {
         return { success: false, error };
       }
       
-      // Set up public access policy for the bucket
-      // The getPublicUrl method doesn't return an error, just the data with the URL
-      const { data: publicUrlData } = supabase
-        .storage
-        .from('images')
-        .getPublicUrl('dummy.txt');
-        
       console.log('Images bucket created successfully');
       return { success: true, data };
     } else {
       console.log('Images bucket already exists');
+      // Set up public URL for the bucket
+      const { data } = supabase
+        .storage
+        .from('images')
+        .getPublicUrl('dummy.txt');
+        
+      console.log('Public URL example:', data.publicUrl);
       return { success: true };
     }
   } catch (error) {

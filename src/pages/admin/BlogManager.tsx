@@ -25,7 +25,7 @@ import { ArrowRight, Edit2, FileText, Plus, Trash2, Upload } from "lucide-react"
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, initializeStorageBucket } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
@@ -38,15 +38,33 @@ const BlogManager = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [bucketInitialized, setBucketInitialized] = useState(false);
   const [newPost, setNewPost] = useState({
     title: "",
     excerpt: "",
     category: "",
     status: "draft" as "draft" | "published"
   });
+
+  useEffect(() => {
+    const init = async () => {
+      const bucketResult = await initializeStorageBucket();
+      setBucketInitialized(bucketResult.success);
+      
+      if (!bucketResult.success) {
+        console.error("Storage bucket initialization failed:", bucketResult.error);
+        toast.error('ไม่สามารถเตรียมพื้นที่เก็บรูปภาพได้');
+      }
+      
+      await fetchBlogPosts();
+    };
+    
+    init();
+  }, []);
 
   const fetchBlogPosts = async () => {
     setIsLoading(true);
@@ -67,13 +85,14 @@ const BlogManager = () => {
     }
   };
 
-  useEffect(() => {
-    fetchBlogPosts();
-  }, []);
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('ขนาดไฟล์เกิน 10MB กรุณาเลือกไฟล์ใหม่');
+        return;
+      }
+      
       setImageFile(file);
       const reader = new FileReader();
       reader.onload = () => {
@@ -85,6 +104,14 @@ const BlogManager = () => {
 
   const uploadImage = async (file: File) => {
     try {
+      if (!bucketInitialized) {
+        const bucketResult = await initializeStorageBucket();
+        if (!bucketResult.success) {
+          throw new Error('ไม่สามารถเตรียมพื้นที่เก็บรูปภาพได้');
+        }
+        setBucketInitialized(true);
+      }
+      
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `blog/${fileName}`;
@@ -102,8 +129,7 @@ const BlogManager = () => {
       return data.publicUrl;
     } catch (error: any) {
       console.error('Error uploading image:', error.message);
-      toast.error('อัปโหลดรูปภาพไม่สำเร็จ');
-      return null;
+      throw new Error('อัปโหลดรูปภาพไม่สำเร็จ: ' + error.message);
     }
   };
 
@@ -113,6 +139,8 @@ const BlogManager = () => {
       return;
     }
 
+    setIsSubmitting(true);
+    
     try {
       let imageUrl = '/placeholder.svg';
       
@@ -156,7 +184,9 @@ const BlogManager = () => {
       toast.success('เพิ่มบทความใหม่สำเร็จ');
     } catch (error: any) {
       console.error('Error adding blog post:', error.message);
-      toast.error('ไม่สามารถเพิ่มบทความได้');
+      toast.error('ไม่สามารถเพิ่มบทความได้: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -391,6 +421,7 @@ const BlogManager = () => {
                       <label htmlFor="image" className="flex flex-col items-center justify-center cursor-pointer">
                         <Upload className="h-6 w-6 text-gray-400 mb-2" />
                         <span className="text-sm text-gray-500">คลิกเพื่ออัปโหลดรูปภาพ</span>
+                        <span className="text-xs text-gray-400 mt-1">(ขนาดไม่เกิน 10MB)</span>
                       </label>
                     </div>
                     {imagePreview && (
@@ -411,8 +442,10 @@ const BlogManager = () => {
                 setIsAddDialogOpen(false);
                 setImageFile(null);
                 setImagePreview(null);
-              }}>ยกเลิก</Button>
-              <Button onClick={handleAddPost}>บันทึก</Button>
+              }} disabled={isSubmitting}>ยกเลิก</Button>
+              <Button onClick={handleAddPost} disabled={isSubmitting}>
+                {isSubmitting ? 'กำลังบันทึก...' : 'บันทึก'}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
