@@ -27,6 +27,9 @@ export const debugTable = async (supabase: any, tableName: string) => {
       // Log the first row as an example of the structure
       console.log(`Sample row from ${tableName}:`, data[0]);
       
+      // Log all rows to inspect the data
+      console.log(`All rows in ${tableName}:`, data);
+      
       // If the table has a status field, summarize status counts
       if (data[0].hasOwnProperty('status')) {
         const statusCount: Record<string, number> = {};

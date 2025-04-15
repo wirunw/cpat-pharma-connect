@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
+import { debugTable } from "@/utils/debugUtils";
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 type SubscriberInsert = Database['public']['Tables']['subscribers']['Insert'];
@@ -26,9 +27,12 @@ const Blog = () => {
     setFetchError(null);
     
     try {
-      console.log("Attempting to fetch published blog posts...");
+      console.log("Attempting to fetch blog posts...");
       
-      // Simple query to get all blog posts regardless of status - for debugging
+      // DEBUG: Get all blog posts to see what's in the database
+      await debugTable(supabase, 'blog_posts');
+      
+      // Try a simpler query first - get ALL posts without any filters
       const { data: allPosts, error: allError } = await supabase
         .from('blog_posts')
         .select('*');
@@ -38,31 +42,16 @@ const Blog = () => {
         throw allError;
       }
       
-      console.log("All blog posts (for debugging):", allPosts);
+      console.log("All blog posts (unfiltered):", allPosts);
       console.log("Total posts in database:", allPosts?.length || 0);
       
-      if (allPosts && allPosts.length > 0) {
-        console.log("Post statuses:", allPosts.map(p => `${p.id}: ${p.status}`));
-      }
+      // Get only published posts for display 
+      const publishedPosts = allPosts?.filter(post => post.status === 'published') || [];
+      console.log("Published posts after filtering:", publishedPosts);
+      console.log("Total published posts:", publishedPosts.length);
       
-      // Now fetch only published posts for display
-      const { data: publishedPosts, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('status', 'published')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching published blog posts:', error);
-        setFetchError(`Database error: ${error.message}`);
-        throw error;
-      }
-      
-      console.log("Published blog posts:", publishedPosts);
-      console.log("Total published posts:", publishedPosts?.length || 0);
-      
-      // Ensure we're setting the posts in state
-      setBlogPosts(publishedPosts || []);
+      // Set the posts in state
+      setBlogPosts(publishedPosts);
     } catch (error: any) {
       console.error('Error in fetchBlogPosts():', error.message);
       toast.error("ไม่สามารถโหลดบทความได้");
@@ -195,7 +184,7 @@ const Blog = () => {
                 <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md text-left max-w-2xl mx-auto">
                   <h3 className="font-bold text-yellow-800">ข้อมูลสำหรับการแก้ไขปัญหา:</h3>
                   <p className="text-sm text-yellow-700 mt-2">
-                    ไม่พบบทความที่เผยแพร่ กรุณาตรวจสอบสถานะของบทความในระบบ admin หรือติดต่อผู้ดูแลระบบหากคุณเห็นข้อความนี้
+                    ไม่พบบทความที่เผยแพร่ กรุณาตรวจสอบค่า status ของบทความในระบบ admin ว่าเป็น "published" หรือไม่
                   </p>
                 </div>
               </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -6,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
+import { debugTable } from "@/utils/debugUtils";
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 
@@ -33,35 +35,40 @@ const BlogDetail = () => {
     try {
       console.log("Fetching blog post with ID:", id);
       
-      // First, check if the post exists at all
-      const { data, error } = await supabase
+      // Debug the entire blog_posts table first
+      await debugTable(supabase, 'blog_posts');
+      
+      // Try a direct query without filtering first
+      const { data: directData, error: directError } = await supabase
         .from('blog_posts')
         .select('*')
-        .eq('id', id)
-        .single();
+        .eq('id', id);
       
-      if (error) {
-        console.error('Error fetching blog post:', error.message);
-        if (error.code === 'PGRST116') {
-          // If no records are returned (PGRST116 error), redirect to NotFound
-          console.log("No blog post found with ID:", id);
-          navigate('/not-found', { replace: true });
-          return;
-        }
-        throw error;
+      if (directError) {
+        console.error('Error in direct blog post query:', directError);
+        throw directError;
       }
       
-      console.log("Blog post data found:", data);
+      console.log("Direct query results:", directData);
+      
+      if (!directData || directData.length === 0) {
+        console.log("No blog post found with ID:", id);
+        navigate('/not-found', { replace: true });
+        return;
+      }
+      
+      const post = directData[0];
+      console.log("Found blog post with status:", post.status);
       
       // Check if the post is published
-      if (data.status !== 'published') {
-        console.log("Post exists but is not published. Status:", data.status);
+      if (post.status !== 'published') {
+        console.log("Post exists but is not published. Status:", post.status);
         navigate('/not-found', { replace: true });
         return;
       }
       
       // If we get here, the post exists and is published
-      setBlogPost(data);
+      setBlogPost(post);
     } catch (error: any) {
       console.error('Error in fetchBlogPost():', error.message);
       setFetchError(error.message);
