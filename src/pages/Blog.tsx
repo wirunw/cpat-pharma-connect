@@ -24,15 +24,22 @@ const Blog = () => {
     setIsLoading(true);
     try {
       console.log("Fetching blog posts...");
+      
+      // Make sure we're only getting published blog posts
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
         .eq('status', 'published')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error in query:', error);
+        throw error;
+      }
       
       console.log("Blog posts data:", data);
+      console.log("Number of posts returned:", data?.length);
+      
       setBlogPosts(data || []);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error.message);

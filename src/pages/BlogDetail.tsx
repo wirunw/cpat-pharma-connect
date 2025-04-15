@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -25,6 +26,8 @@ const BlogDetail = () => {
     setIsLoading(true);
     try {
       console.log("Fetching blog post with ID:", id);
+      
+      // Query to get published blog posts only
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')

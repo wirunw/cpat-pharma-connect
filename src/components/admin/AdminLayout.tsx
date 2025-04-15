@@ -16,6 +16,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   const handleLogout = async () => {
     try {
+      // First check if we have a session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log("No active session found, redirecting to login");
+        toast.info("ไม่พบเซสชันที่ใช้งาน กำลังนำไปสู่หน้าเข้าสู่ระบบ");
+        navigate("/admin/login");
+        return;
+      }
+      
+      // If we have a session, try to sign out
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -27,6 +38,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     } catch (error: any) {
       console.error("Logout error:", error.message);
       toast.error(`ไม่สามารถออกจากระบบได้: ${error.message}`);
+      
+      // Even if there's an error, try to redirect to login
+      navigate("/admin/login");
     }
   };
 
