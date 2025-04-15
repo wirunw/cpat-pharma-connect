@@ -1,8 +1,12 @@
-
 import { Member } from '@/types/member';
 
 export const executiveMembers: Member[] = [
-  { name: "รศ.ดร.ภก. กร ศรเลิศล้ำวาณิช", title: "ผู้อำนวยการ", email: "korn.s@cpat.ac.th" },
+  { 
+    name: "รศ.ดร.ภก. กร ศรเลิศล้ำวาณิช", 
+    title: "ผู้อำนวยการ", 
+    email: "korn.s@cpat.ac.th",
+    avatarUrl: "/placeholder.svg"  // Optional avatar URL
+  },
   { name: "ภญ.รุ่งเพ็ชร สกุลบำรุง", title: "ที่ปรึกษาวิทยาลัย", email: "rungpetch.c@cpat.ac.th" },
   { name: "ภญ.พนิดา ปัญญางาม", title: "เหรัญญิก", email: "panida.p@cpat.ac.th" },
   { name: "ภญ.พุศราพร เกษสมบูรณ์", title: "เลขาธิการวิทยาลัย", email: "nusaraporn.k@cpat.ac.th" },
@@ -15,7 +19,12 @@ export const executiveMembers: Member[] = [
 ];
 
 export const foundingMembers: Member[] = [
-  { name: "ภก.ทวีศักดิ์ สีทองสุข", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "thaweesak01@gmail.com" },
+  { 
+    name: "ภก.ทวีศักดิ์ สีทองสุข", 
+    title: "สมาชิกผู้ร่วมก่อตั้ง", 
+    email: "thaweesak01@gmail.com",
+    avatarUrl: "/placeholder.svg"  // Optional avatar URL
+  },
   { name: "ภญ.สุทธิพงศ์ หนูฤทธิ์", title: "ประชาสัมพันธ์วิทยาลัย", email: "sutthipong.n@cpat.ac.th" },
   { name: "ภญ.จิราพร ลิ้มปานะพันธุ์", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "jiraporn.l@chula.ac.th" },
   { name: "ภญ.บุษกร เลิศวัฒนานนท์", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "busakornlee@gmail.com" },
@@ -26,5 +35,4 @@ export const foundingMembers: Member[] = [
   { name: "ภญ.วรรณี ชัยเฉลิมพล", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "wannee.c@cpat.ac.th" },
   { name: "ภก.อาทร ริ้วไพบูลย์", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "arthorn.rie@moh.go.th" },
   { name: "ภญ.เนตรนภิส สุชนวนิช", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "netnapis.s@hitap.net" },
-  // ... remaining founding members
 ];
