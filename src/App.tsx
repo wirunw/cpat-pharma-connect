@@ -12,6 +12,7 @@ import About from "./pages/About";
 import Admission from "./pages/Admission";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
@@ -88,6 +89,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/admission" element={<Admission />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogDetail />} />
             <Route path="/contact" element={<Contact />} />
             
             {/* Admin Routes */}
@@ -97,7 +99,8 @@ function App() {
             <Route path="/admin/messages" element={<MessagesManager />} />
             <Route path="/admin/subscriptions" element={<SubscriptionsManager />} />
             
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* Catch-all route for 404 */}
+            <Route path="/not-found" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
