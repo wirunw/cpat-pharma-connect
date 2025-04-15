@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
-type Subscriber = Database['public']['Tables']['subscribers']['Row'];
+type SubscriberInsert = Database['public']['Tables']['subscribers']['Insert'];
 
 const Blog = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -78,15 +78,15 @@ const Blog = () => {
       const year = today.getFullYear() + 543; // Convert to Buddhist Era
       const formattedDate = `${day} ${month} ${year}`;
       
+      const newSubscriber: SubscriberInsert = {
+        email: subscriberEmail.toLowerCase(),
+        thai_date: formattedDate,
+        source: "หน้าบทความ"
+      };
+      
       const { error } = await supabase
         .from('subscribers')
-        .insert([
-          {
-            email: subscriberEmail.toLowerCase(),
-            thai_date: formattedDate,
-            source: "หน้าบทความ"
-          }
-        ]);
+        .insert([newSubscriber]);
       
       if (error) throw error;
       

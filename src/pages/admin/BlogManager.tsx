@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -49,7 +48,6 @@ const BlogManager = () => {
     status: "draft" as "draft" | "published"
   });
 
-  // Fetch blog posts from Supabase
   const fetchBlogPosts = async () => {
     setIsLoading(true);
     try {
@@ -91,11 +89,11 @@ const BlogManager = () => {
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `blog/${fileName}`;
       
-      const { error } = await supabase.storage
+      const { error: storageError } = await supabase.storage
         .from('images')
         .upload(filePath, file);
       
-      if (error) throw error;
+      if (storageError) throw storageError;
       
       const { data } = supabase.storage
         .from('images')
@@ -232,7 +230,6 @@ const BlogManager = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  // Helper function for Thai month names
   const getThaiMonth = (month: number) => {
     const thaiMonths = [
       "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
@@ -320,7 +317,6 @@ const BlogManager = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Add New Post Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogContent className="sm:max-w-[625px]">
             <DialogHeader>
@@ -421,7 +417,6 @@ const BlogManager = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Post Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[625px]">
             <DialogHeader>
@@ -524,7 +519,6 @@ const BlogManager = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>

@@ -1,62 +1,57 @@
-
 import React, { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Building2, Mail, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 
-type ContactMessage = Database['public']['Tables']['contact_messages']['Insert'];
-
-const formSchema = z.object({
-  name: z.string().min(2, { message: "กรุณากรอกชื่อที่มีความยาวอย่างน้อย 2 ตัวอักษร" }),
-  email: z.string().email({ message: "กรุณากรอกอีเมลให้ถูกต้อง" }),
-  phone: z.string().min(10, { message: "กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง" }),
-  message: z.string().min(10, { message: "กรุณากรอกข้อความที่มีความยาวอย่างน้อย 10 ตัวอักษร" }),
-});
+type ContactMessageInsert = Database['public']['Tables']['contact_messages']['Insert'];
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: ""
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      message: "",
-    },
-  });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.phone || !formData.message) {
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+    
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("รูปแบบอีเมลไม่ถูกต้อง");
+      return;
+    }
+    
+    // Validate phone number (simple validation)
+    const phoneRegex = /^\d{9,10}$/;
+    if (!phoneRegex.test(formData.phone.replace(/-/g, ''))) {
+      toast.error("รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
+      // Format Thai date and time
       const today = new Date();
-      
-      // Format Thai date
       const day = today.getDate();
       const thaiMonths = [
         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
@@ -64,33 +59,41 @@ const Contact = () => {
       ];
       const month = thaiMonths[today.getMonth()];
       const year = today.getFullYear() + 543; // Convert to Buddhist Era
-      const thaiDate = `${day} ${month} ${year}`;
       
-      // Format Thai time
       const hours = today.getHours().toString().padStart(2, '0');
       const minutes = today.getMinutes().toString().padStart(2, '0');
+      
+      const thaiDate = `${day} ${month} ${year}`;
       const thaiTime = `${hours}:${minutes} น.`;
+      
+      // Create message object
+      const newMessage: ContactMessageInsert = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        read: false,
+        thai_date: thaiDate,
+        thai_time: thaiTime
+      };
       
       const { error } = await supabase
         .from('contact_messages')
-        .insert([
-          { 
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            message: values.message,
-            read: false,
-            thai_date: thaiDate,
-            thai_time: thaiTime
-          }
-        ]);
+        .insert([newMessage]);
       
       if (error) throw error;
       
-      form.reset();
-      toast.success("ส่งข้อความสำเร็จ ขอบคุณสำหรับการติดต่อ");
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: ""
+      });
+      
+      toast.success("ส่งข้อความสำเร็จ เราจะติดต่อกลับโดยเร็วที่สุด");
     } catch (error: any) {
-      console.error('Error submitting contact form:', error);
+      console.error('Error sending message:', error.message);
       toast.error("ไม่สามารถส่งข้อความได้ โปรดลองอีกครั้ง");
     } finally {
       setIsSubmitting(false);
@@ -107,150 +110,85 @@ const Contact = () => {
           <div className="container mx-auto max-w-6xl">
             <h1 className="text-3xl md:text-5xl font-bold mb-4">ติดต่อเรา</h1>
             <p className="text-xl max-w-3xl">
-              หากคุณมีคำถามหรือต้องการข้อมูลเพิ่มเติมเกี่ยวกับหลักสูตรของเรา โปรดติดต่อเราผ่านช่องทางด้านล่าง
+              มีคำถามหรือข้อสงสัย? ติดต่อเราได้เลย เราพร้อมให้คำปรึกษาและบริการ
             </p>
           </div>
         </section>
         
-        {/* Contact Form and Info */}
+        {/* Contact Form */}
         <section className="py-16 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Contact Form */}
-              <div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>ส่งข้อความถึงเรา</CardTitle>
-                    <CardDescription>กรอกแบบฟอร์มด้านล่างเพื่อติดต่อกับทีมงานของเรา</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>ชื่อ-นามสกุล</FormLabel>
-                              <FormControl>
-                                <Input placeholder="กรอกชื่อและนามสกุลของคุณ" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>อีเมล</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="example@domain.com" type="email" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>เบอร์โทรศัพท์</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="081-234-5678" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <FormField
-                          control={form.control}
-                          name="message"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>ข้อความ</FormLabel>
-                              <FormControl>
-                                <Textarea placeholder="กรอกข้อความที่คุณต้องการส่งถึงเรา" rows={5} {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <Button type="submit" className="w-full" disabled={isSubmitting}>
-                          {isSubmitting ? "กำลังส่ง..." : "ส่งข้อความ"}
-                        </Button>
-                      </form>
-                    </Form>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Contact Info */}
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-blue-600" />
-                      <span>วิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">College of Pharmacy Administration of Thailand</p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">ข้อมูลการติดต่อ</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <MapPin className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">ที่อยู่</p>
-                        <p className="text-gray-600">123 ถนนสุขุมวิท แขวงคลองเตยเหนือ เขตวัฒนา กรุงเทพมหานคร 10110</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Phone className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">โทรศัพท์</p>
-                        <p className="text-gray-600">02-123-4567</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Mail className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">อีเมล</p>
-                        <p className="text-gray-600">info@cpat.co.th</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">แผนที่</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px] bg-gray-200 rounded-md overflow-hidden">
-                      <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3875.5613193911!2d100.56569491483024!3d13.741893990351267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29ee109dab6e1%3A0xfd15aa1c632d9677!2sSukhumvit%20Rd%2C%20Khlong%20Toei%2C%20Bangkok!5e0!3m2!1sen!2sth!4v1650123456789!5m2!1sen!2sth" 
-                        width="100%" 
-                        height="100%" 
-                        style={{ border: 0 }} 
-                        allowFullScreen 
-                        loading="lazy" 
-                        referrerPolicy="no-referrer-when-downgrade"
-                      ></iframe>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+          <div className="container mx-auto max-w-4xl">
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h2 className="text-2xl font-bold text-blue-900 mb-6">ส่งข้อความถึงเรา</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">
+                      ชื่อ-นามสกุล
+                    </label>
+                    <Input 
+                      type="text" 
+                      id="name" 
+                      name="name"
+                      placeholder="กรอกชื่อ-นามสกุล" 
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={formData.name}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
+                      อีเมล
+                    </label>
+                    <Input 
+                      type="email" 
+                      id="email" 
+                      name="email"
+                      placeholder="กรอกอีเมล" 
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={formData.email}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+                <div className="mb-6">
+                  <label htmlFor="phone" className="block text-gray-700 text-sm font-bold mb-2">
+                    เบอร์โทรศัพท์
+                  </label>
+                  <Input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone"
+                    placeholder="กรอกเบอร์โทรศัพท์" 
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="mb-6">
+                  <label htmlFor="message" className="block text-gray-700 text-sm font-bold mb-2">
+                    ข้อความ
+                  </label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    placeholder="กรอกข้อความ"
+                    rows={5}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={formData.message}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Button 
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "กำลังส่ง..." : "ส่งข้อความ"}
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         </section>
