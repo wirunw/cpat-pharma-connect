@@ -26,6 +26,9 @@ import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type ContactMessage = Database['public']['Tables']['contact_messages']['Insert'];
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "กรุณากรอกชื่อที่มีความยาวอย่างน้อย 2 ตัวอักษร" }),

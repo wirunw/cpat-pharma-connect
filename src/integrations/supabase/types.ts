@@ -9,7 +9,102 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          category: string
+          created_at: string
+          excerpt: string
+          id: string
+          image_url: string | null
+          status: string
+          thai_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          excerpt: string
+          id?: string
+          image_url?: string | null
+          status: string
+          thai_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          excerpt?: string
+          id?: string
+          image_url?: string | null
+          status?: string
+          thai_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string
+          read: boolean
+          thai_date: string | null
+          thai_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone: string
+          read?: boolean
+          thai_date?: string | null
+          thai_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string
+          read?: boolean
+          thai_date?: string | null
+          thai_time?: string | null
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+          thai_date: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+          thai_date?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+          thai_date?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

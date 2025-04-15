@@ -21,12 +21,16 @@ import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type ContactMessage = Database['public']['Tables']['contact_messages']['Row'];
+type ContactMessageUpdate = Database['public']['Tables']['contact_messages']['Update'];
 
 const MessagesManager = () => {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch messages from Supabase
@@ -53,16 +57,20 @@ const MessagesManager = () => {
     fetchMessages();
   }, []);
 
-  const handleViewMessage = async (message: any) => {
+  const handleViewMessage = async (message: ContactMessage) => {
     setSelectedMessage(message);
     setIsViewDialogOpen(true);
     
     // Mark as read if not already
     if (!message.read) {
       try {
+        const updateData: ContactMessageUpdate = {
+          read: true
+        };
+        
         const { error } = await supabase
           .from('contact_messages')
-          .update({ read: true })
+          .update(updateData)
           .eq('id', message.id);
         
         if (error) throw error;
@@ -77,7 +85,7 @@ const MessagesManager = () => {
     }
   };
 
-  const handleDeleteClick = (message: any) => {
+  const handleDeleteClick = (message: ContactMessage) => {
     setSelectedMessage(message);
     setIsDeleteDialogOpen(true);
   };

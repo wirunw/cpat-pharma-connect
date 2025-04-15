@@ -6,9 +6,13 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
+
+type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
+type Subscriber = Database['public']['Tables']['subscribers']['Row'];
 
 const Blog = () => {
-  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [subscriberEmail, setSubscriberEmail] = useState("");
 

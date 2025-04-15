@@ -27,14 +27,19 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
+type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert'];
+type BlogPostUpdate = Database['public']['Tables']['blog_posts']['Update'];
 
 const BlogManager = () => {
-  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newPost, setNewPost] = useState({
@@ -123,18 +128,18 @@ const BlogManager = () => {
       const today = new Date();
       const thaiDate = `${today.getDate()} ${getThaiMonth(today.getMonth())} ${today.getFullYear() + 543}`;
       
+      const newBlogPost: BlogPostInsert = {
+        title: newPost.title,
+        excerpt: newPost.excerpt,
+        category: newPost.category,
+        status: newPost.status,
+        image_url: imageUrl,
+        thai_date: thaiDate
+      };
+      
       const { data, error } = await supabase
         .from('blog_posts')
-        .insert([
-          {
-            title: newPost.title,
-            excerpt: newPost.excerpt,
-            category: newPost.category,
-            status: newPost.status,
-            image_url: imageUrl,
-            thai_date: thaiDate
-          }
-        ])
+        .insert([newBlogPost])
         .select();
       
       if (error) throw error;
@@ -170,15 +175,17 @@ const BlogManager = () => {
         }
       }
       
+      const updatedPost: BlogPostUpdate = {
+        title: selectedPost.title,
+        excerpt: selectedPost.excerpt,
+        category: selectedPost.category,
+        status: selectedPost.status,
+        image_url: imageUrl
+      };
+      
       const { error } = await supabase
         .from('blog_posts')
-        .update({
-          title: selectedPost.title,
-          excerpt: selectedPost.excerpt,
-          category: selectedPost.category,
-          status: selectedPost.status,
-          image_url: imageUrl
-        })
+        .update(updatedPost)
         .eq('id', selectedPost.id);
       
       if (error) throw error;
@@ -214,13 +221,13 @@ const BlogManager = () => {
     }
   };
 
-  const handleEditClick = (post: any) => {
+  const handleEditClick = (post: BlogPost) => {
     setSelectedPost(post);
-    setImagePreview(post.image_url);
+    setImagePreview(post.image_url || null);
     setIsEditDialogOpen(true);
   };
 
-  const handleDeleteClick = (post: any) => {
+  const handleDeleteClick = (post: BlogPost) => {
     setSelectedPost(post);
     setIsDeleteDialogOpen(true);
   };
@@ -544,9 +551,9 @@ const BlogManager = () => {
 };
 
 interface BlogPostCardProps {
-  post: any;
-  onEdit: (post: any) => void;
-  onDelete: (post: any) => void;
+  post: BlogPost;
+  onEdit: (post: BlogPost) => void;
+  onDelete: (post: BlogPost) => void;
 }
 
 const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, onEdit, onDelete }) => {
