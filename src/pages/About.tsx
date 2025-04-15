@@ -1,10 +1,11 @@
-
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import MembersSection from "@/components/about/MembersSection";
+import { executiveMembers, foundingMembers } from "@/data/members";
 
 const About = () => {
   return (
@@ -44,7 +45,7 @@ const About = () => {
                     วิทยาลัยของเราเป็นสถาบันที่มุ่งเน้นการผสมผสานความรู้ทางเภสัชศาสตร์เข้ากับทักษะการบริหารจัดการสมัยใหม่ เพื่อสร้างผู้นำในวงการเภสัชกรรมที่พร้อมรับมือกับความท้าทายในยุคที่เทคโนโลยีและนวัตกรรมเปลี่ยนแปลงอย่างรวดเร็ว
                   </p>
                   <p>
-                    เราเชื่อว่าการศึกษาที่มีคุณภาพจะเป็นรากฐานสำคัญในการพัฒนาระบบสาธารณสุขของประเทศ ผ่านการสร้างบุคลากรที่มีทั้งความรู้และความสามารถในการบริหารจัดการทรัพยากรอย่างมีประสิทธิภาพ
+                    เราเชื่อว่าการศึกษาที่มีคุณภาพจะเป็นรากฐานสำคัญในการพัฒนาระบบสาธารณสุขของประเทศ ผ่านการสร้างบุคลากรที่มีทั้งความรู้และความสามา���ถในการบริหารจัดการทรัพยากรอย่างมีประสิทธิภาพ
                   </p>
                   <p className="font-semibold">
                     รศ.ดร.ภก. กร ศรเลิศล้ำวาณิช<br />
@@ -81,6 +82,18 @@ const About = () => {
             </div>
           </div>
         </section>
+        
+        {/* Executive Committee Section */}
+        <MembersSection 
+          title="คณะกรรมการบริหารวิทยาลัย" 
+          members={executiveMembers}
+        />
+        
+        {/* Founding Members Section */}
+        <MembersSection 
+          title="สมาชิกผู้ร่วมก่อตั้ง" 
+          members={foundingMembers}
+        />
         
         {/* Mission and Vision */}
         <section className="py-16 px-4 bg-white">
