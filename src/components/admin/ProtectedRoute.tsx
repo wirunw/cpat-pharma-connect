@@ -13,6 +13,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event);
+      
+      if (event === 'SIGNED_OUT' || !session) {
+        // Redirect silently without error messages when properly signed out
+        navigate("/admin/login");
+      }
+    });
+
+    // Then check session
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -37,16 +48,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
 
     checkSession();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event);
-      
-      if (event === 'SIGNED_OUT' || !session) {
-        // Redirect silently without error messages when properly signed out
-        navigate("/admin/login");
-      }
-    });
 
     return () => {
       subscription.unsubscribe();
