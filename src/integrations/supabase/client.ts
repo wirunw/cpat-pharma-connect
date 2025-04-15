@@ -46,14 +46,11 @@ export const initializeStorageBucket = async () => {
       }
       
       // Set up public access policy for the bucket
-      const { error: policyError } = await supabase
+      // The getPublicUrl method doesn't return an error, just the data with the URL
+      const { data: publicUrlData } = supabase
         .storage
         .from('images')
         .getPublicUrl('dummy.txt');
-        
-      if (policyError) {
-        console.error('Error setting up public policy:', policyError);
-      }
         
       console.log('Images bucket created successfully');
       return { success: true, data };
