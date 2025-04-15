@@ -37,13 +37,18 @@ const MessagesManager = () => {
   const fetchMessages = async () => {
     setIsLoading(true);
     try {
+      console.log("Fetching messages...");
       const { data, error } = await supabase
         .from('contact_messages')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching messages:', error);
+        throw error;
+      }
       
+      console.log("Messages fetched:", data);
       setMessages(data || []);
     } catch (error: any) {
       console.error('Error fetching messages:', error.message);

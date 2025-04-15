@@ -14,13 +14,22 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 // Initialize the storage bucket
 export const initializeStorageBucket = async () => {
   try {
-    // Check if the images bucket already exists by trying to get its details
-    const { data: bucketData, error: bucketError } = await supabase
+    console.log("Attempting to initialize storage bucket...");
+    
+    // First check if the images bucket exists
+    const { data: buckets, error: bucketsError } = await supabase
       .storage
-      .getBucket('images');
+      .listBuckets();
+      
+    if (bucketsError) {
+      console.error('Error listing buckets:', bucketsError);
+      return { success: false, error: bucketsError };
+    }
+    
+    const imagesBucketExists = buckets.some(bucket => bucket.name === 'images');
     
     // If the bucket doesn't exist, create it
-    if (bucketError && bucketError.message.includes('The resource was not found')) {
+    if (!imagesBucketExists) {
       console.log('Images bucket not found, creating it...');
       
       // Create the bucket
@@ -36,20 +45,21 @@ export const initializeStorageBucket = async () => {
         return { success: false, error };
       }
       
-      // Set up public policies for the bucket
-      await supabase
+      // Set up public access policy for the bucket
+      const { error: policyError } = await supabase
         .storage
         .from('images')
-        .createSignedUrl('dummy.txt', 60);
+        .getPublicUrl('dummy.txt');
+        
+      if (policyError) {
+        console.error('Error setting up public policy:', policyError);
+      }
         
       console.log('Images bucket created successfully');
       return { success: true, data };
-    } else if (bucketError) {
-      console.error('Error checking for images bucket:', bucketError);
-      return { success: false, error: bucketError };
     } else {
       console.log('Images bucket already exists');
-      return { success: true, data: bucketData };
+      return { success: true };
     }
   } catch (error) {
     console.error('Failed to initialize storage bucket:', error);

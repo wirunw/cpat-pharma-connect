@@ -38,11 +38,22 @@ function App() {
   useEffect(() => {
     const init = async () => {
       try {
+        console.log("Initializing storage bucket...");
         const result = await initializeStorageBucket();
         console.log("Storage bucket initialization result:", result);
-        setStorageInitialized(true);
+        
+        if (result.success) {
+          console.log("Storage bucket initialized successfully");
+          setStorageInitialized(true);
+        } else {
+          console.error("Storage bucket initialization failed:", result.error);
+          // Try again after 3 seconds if it failed
+          setTimeout(() => init(), 3000);
+        }
       } catch (error) {
         console.error("Error initializing storage bucket:", error);
+        // Try again after 3 seconds if it failed
+        setTimeout(() => init(), 3000);
       }
     };
     
