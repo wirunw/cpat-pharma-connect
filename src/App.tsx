@@ -21,6 +21,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import BlogManager from "./pages/admin/BlogManager";
 import MessagesManager from "./pages/admin/MessagesManager";
 import SubscriptionsManager from "./pages/admin/SubscriptionsManager";
+import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -94,10 +95,26 @@ function App() {
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/admin/blog" element={<BlogManager />} />
-            <Route path="/admin/messages" element={<MessagesManager />} />
-            <Route path="/admin/subscriptions" element={<SubscriptionsManager />} />
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/blog" element={
+              <ProtectedRoute>
+                <BlogManager />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/messages" element={
+              <ProtectedRoute>
+                <MessagesManager />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/subscriptions" element={
+              <ProtectedRoute>
+                <SubscriptionsManager />
+              </ProtectedRoute>
+            } />
             
             {/* Catch-all route for 404 */}
             <Route path="/not-found" element={<NotFound />} />

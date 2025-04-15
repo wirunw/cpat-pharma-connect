@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,30 +15,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   const handleLogout = async () => {
     try {
-      // First check if we have a session
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.log("No active session found, redirecting to login");
-        toast.info("ไม่พบเซสชันที่ใช้งาน กำลังนำไปสู่หน้าเข้าสู่ระบบ");
-        navigate("/admin/login");
-        return;
-      }
-      
-      // If we have a session, try to sign out
+      // Skip session check and just try to sign out directly
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        throw error;
+        console.error("Logout error:", error);
+        toast.error(`ออกจากระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง`);
+      } else {
+        toast.success("ออกจากระบบสำเร็จ");
       }
       
-      toast.success("ออกจากระบบสำเร็จ");
+      // Always redirect to login regardless of error
       navigate("/admin/login");
     } catch (error: any) {
       console.error("Logout error:", error.message);
-      toast.error(`ไม่สามารถออกจากระบบได้: ${error.message}`);
-      
-      // Even if there's an error, try to redirect to login
+      toast.error(`เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง`);
       navigate("/admin/login");
     }
   };

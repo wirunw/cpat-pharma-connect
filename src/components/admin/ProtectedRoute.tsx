@@ -19,7 +19,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         if (error) {
           console.error("Session error:", error.message);
-          toast.error("เซสชันไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่");
           navigate("/admin/login");
           return;
         }
@@ -44,6 +43,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       console.log("Auth state changed:", event);
       
       if (event === 'SIGNED_OUT' || !session) {
+        // Redirect silently without error messages when properly signed out
         navigate("/admin/login");
       }
     });
