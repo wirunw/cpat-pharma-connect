@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   
   const handleLogout = async () => {
     try {
+      // First try to sign out
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -22,7 +24,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         toast.error("ออกจากระบบไม่สำเร็จ");
       } else {
         toast.success("ออกจากระบบสำเร็จ");
-        navigate("/admin/login");
+        // Only navigate after successful logout
+        setTimeout(() => {
+          navigate("/admin/login");
+        }, 500); // Small delay to ensure toast is visible
       }
     } catch (error: any) {
       console.error("Logout error:", error.message);
