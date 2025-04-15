@@ -23,6 +23,7 @@ const Blog = () => {
   const fetchBlogPosts = async () => {
     setIsLoading(true);
     try {
+      console.log("Fetching blog posts...");
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
@@ -31,9 +32,11 @@ const Blog = () => {
       
       if (error) throw error;
       
+      console.log("Blog posts data:", data);
       setBlogPosts(data || []);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error.message);
+      toast.error("ไม่สามารถโหลดบทความได้");
     } finally {
       setIsLoading(false);
     }

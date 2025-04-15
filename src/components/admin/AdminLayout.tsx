@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Briefcase, FileText, LogOut, Mail, MessageSquare } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -13,10 +14,20 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const handleLogout = () => {
-    localStorage.removeItem("adminAuthenticated");
-    toast.success("ออกจากระบบสำเร็จ");
-    navigate("/admin/login");
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success("ออกจากระบบสำเร็จ");
+      navigate("/admin/login");
+    } catch (error: any) {
+      console.error("Logout error:", error.message);
+      toast.error(`ไม่สามารถออกจากระบบได้: ${error.message}`);
+    }
   };
 
   const isActive = (path: string) => {
