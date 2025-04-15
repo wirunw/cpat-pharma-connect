@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Header from "@/components/layout/Header";
@@ -12,14 +12,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Lock, User } from "lucide-react";
-
-// Simplified authentication - in a real app, use a proper auth system
-const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "admin123";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
-  username: z.string().min(1, "กรุณากรอกชื่อผู้ใช้"),
-  password: z.string().min(1, "กรุณากรอกรหัสผ่าน"),
+  email: z.string().email("กรุณากรอกอีเมลให้ถูกต้อง"),
+  password: z.string().min(6, "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -28,29 +25,46 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Check if already authenticated
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/admin/dashboard");
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      if (data.username === ADMIN_USERNAME && data.password === ADMIN_PASSWORD) {
-        // Set admin session
-        localStorage.setItem("adminAuthenticated", "true");
-        toast.success("เข้าสู่ระบบสำเร็จ");
-        navigate("/admin/dashboard");
-      } else {
-        toast.error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      
+      if (error) {
+        throw error;
       }
+      
+      toast.success("เข้าสู่ระบบสำเร็จ");
+      navigate("/admin/dashboard");
+    } catch (error: any) {
+      toast.error(`เข้าสู่ระบบไม่สำเร็จ: ${error.message || "กรุณาตรวจสอบอีเมลและรหัสผ่าน"}`);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -62,7 +76,7 @@ const AdminLogin = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">เข้าสู่ระบบสำหรับผู้ดูแลระบบ</CardTitle>
             <CardDescription className="text-center">
-              กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่หน้าจัดการระบบ
+              กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่หน้าจัดการระบบ
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -70,16 +84,16 @@ const AdminLogin = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>ชื่อผู้ใช้</FormLabel>
+                      <FormLabel>อีเมล</FormLabel>
                       <FormControl>
                         <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
                           <div className="px-3 py-2 text-gray-500">
                             <User size={20} />
                           </div>
-                          <Input className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0" placeholder="กรอกชื่อผู้ใช้" {...field} />
+                          <Input className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0" placeholder="กรอกอีเมล" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -115,9 +129,12 @@ const AdminLogin = () => {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-500">
+          <CardFooter className="flex flex-col gap-2">
+            <p className="text-sm text-gray-500 text-center">
               สำหรับผู้ดูแลระบบเท่านั้น
+            </p>
+            <p className="text-xs text-gray-400 text-center">
+              ต้องสมัครบัญชีผู้ใช้ใน Supabase ก่อนเข้าสู่ระบบ
             </p>
           </CardFooter>
         </Card>
