@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -43,6 +44,7 @@ const BlogManager = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [bucketInitialized, setBucketInitialized] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [newPost, setNewPost] = useState({
     title: "",
     excerpt: "",
@@ -52,19 +54,34 @@ const BlogManager = () => {
 
   useEffect(() => {
     const init = async () => {
-      const bucketResult = await initializeStorageBucket();
-      setBucketInitialized(bucketResult.success);
-      
-      if (!bucketResult.success) {
-        console.error("Storage bucket initialization failed:", bucketResult.error);
-        toast.error('ไม่สามารถเตรียมพื้นที่เก็บรูปภาพได้');
-      }
-      
+      await initBucket();
       await fetchBlogPosts();
     };
     
     init();
   }, []);
+
+  // Separate function to initialize the bucket with retries
+  const initBucket = async () => {
+    try {
+      const bucketResult = await initializeStorageBucket();
+      setBucketInitialized(bucketResult.success);
+      
+      if (!bucketResult.success) {
+        if (retryCount < 3) {
+          console.log(`Retrying bucket initialization (${retryCount + 1}/3)...`);
+          setRetryCount(prev => prev + 1);
+          setTimeout(initBucket, 2000); // Wait 2 seconds before retrying
+        } else {
+          console.error("Storage bucket initialization failed after 3 attempts:", bucketResult.error);
+          toast.error('ไม่สามารถเตรียมพื้นที่เก็บรูปภาพได้ กรุณาลองใหม่อีกครั้งในภายหลัง');
+        }
+      }
+    } catch (error) {
+      console.error("Error initializing storage bucket:", error);
+      toast.error('เกิดข้อผิดพลาดในการเตรียมพื้นที่เก็บรูปภาพ');
+    }
+  };
 
   const fetchBlogPosts = async () => {
     setIsLoading(true);
@@ -104,6 +121,7 @@ const BlogManager = () => {
 
   const uploadImage = async (file: File) => {
     try {
+      // Re-initialize bucket if not initialized
       if (!bucketInitialized) {
         const bucketResult = await initializeStorageBucket();
         if (!bucketResult.success) {
@@ -116,19 +134,26 @@ const BlogManager = () => {
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `blog/${fileName}`;
       
-      const { error: storageError } = await supabase.storage
+      const { error: storageError, data } = await supabase.storage
         .from('images')
         .upload(filePath, file);
       
-      if (storageError) throw storageError;
+      if (storageError) {
+        console.error('Storage error details:', storageError);
+        throw storageError;
+      }
       
-      const { data } = supabase.storage
+      console.log("Upload successful:", data);
+      
+      const { data: urlData } = supabase.storage
         .from('images')
         .getPublicUrl(filePath);
       
-      return data.publicUrl;
+      console.log("Public URL generated:", urlData.publicUrl);
+      
+      return urlData.publicUrl;
     } catch (error: any) {
-      console.error('Error uploading image:', error.message);
+      console.error('Error uploading image:', error);
       throw new Error('อัปโหลดรูปภาพไม่สำเร็จ: ' + error.message);
     }
   };
@@ -145,9 +170,16 @@ const BlogManager = () => {
       let imageUrl = '/placeholder.svg';
       
       if (imageFile) {
-        const uploadedUrl = await uploadImage(imageFile);
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl;
+        try {
+          const uploadedUrl = await uploadImage(imageFile);
+          if (uploadedUrl) {
+            imageUrl = uploadedUrl;
+          }
+        } catch (uploadError: any) {
+          console.error('Upload error:', uploadError);
+          toast.error('อัปโหลดรูปภาพไม่สำเร็จ: ' + uploadError.message);
+          setIsSubmitting(false);
+          return;
         }
       }
       
@@ -276,7 +308,16 @@ const BlogManager = () => {
             <h1 className="text-3xl font-bold text-gray-900">จัดการบทความ</h1>
             <p className="text-gray-500 mt-1">สร้าง แก้ไข และลบบทความบนเว็บไซต์</p>
           </div>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Button 
+            onClick={() => {
+              if (!bucketInitialized) {
+                toast.error('กำลังเตรียมพื้นที่เก็บรูปภาพ กรุณารอสักครู่แล้วลองอีกครั้ง');
+                initBucket();
+                return;
+              }
+              setIsAddDialogOpen(true);
+            }}
+          >
             <Plus className="mr-2 h-4 w-4" />
             เพิ่มบทความใหม่
           </Button>
@@ -347,7 +388,13 @@ const BlogManager = () => {
           </TabsContent>
         </Tabs>
 
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+          if (!open) {
+            setImageFile(null);
+            setImagePreview(null);
+          }
+          setIsAddDialogOpen(open);
+        }}>
           <DialogContent className="sm:max-w-[625px]">
             <DialogHeader>
               <DialogTitle>เพิ่มบทความใหม่</DialogTitle>
