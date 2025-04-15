@@ -13,31 +13,31 @@ const slides = [
     id: 1,
     title: "CPAT แนะนำวิทยาลัย",
     description: "วิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1280&auto=format&fit=crop",
   },
   {
     id: 2,
     title: "ข่าวสารล่าสุด",
     description: "ติดตามข่าวสารและกิจกรรมล่าสุดของวิทยาลัย",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1280&auto=format&fit=crop",
   },
   {
     id: 3,
     title: "การอบรมที่กำลังมาถึง",
     description: "โปรแกรมการอบรมเพื่อพัฒนาทักษะวิชาชีพ",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1573166953714-bfdac0fb9b36?q=80&w=1280&auto=format&fit=crop",
   },
   {
     id: 4,
     title: "ผู้ได้รับประกาศนียบัตรเฉพาะทาง",
     description: "บุคลากรที่ได้รับการรับรองจากวิทยาลัย",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1280&auto=format&fit=crop",
   },
   {
     id: 5,
     title: "พื้นที่ชุมชนของเรา",
     description: "เครือข่ายและชุมชนของวิทยาลัย",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1280&auto=format&fit=crop",
   },
 ];
 

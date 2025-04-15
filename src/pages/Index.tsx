@@ -199,7 +199,7 @@ const Index = () => {
               </div>
               <div className="flex justify-center">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1280&auto=format&fit=crop" 
                   alt="รูปแบบการเรียนที่ยืดหยุ่น" 
                   className="rounded-lg shadow-lg max-w-full h-auto"
                 />
@@ -218,7 +218,7 @@ const Index = () => {
             <div className="bg-white p-8 rounded-lg shadow-sm max-w-3xl mx-auto">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <img 
-                  src="/placeholder.svg" 
+                  src="/lovable-uploads/968b12a5-5483-4af4-a1e3-b2e2f2ed881f.png" 
                   alt="รศ.ดร.ภก. กร ศรเลิศล้ำวานิช" 
                   className="w-32 h-32 rounded-full object-cover"
                 />
