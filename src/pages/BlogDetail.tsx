@@ -109,13 +109,13 @@ const BlogDetail = () => {
             </div>
             <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{blogPost.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">{blogPost?.title}</h1>
                 <div className="flex items-center gap-3">
                   <span className="bg-blue-700 text-sm px-3 py-1 rounded-full">
-                    {blogPost.category}
+                    {blogPost?.category}
                   </span>
                   <span className="text-sm text-blue-100">
-                    {blogPost.thai_date}
+                    {blogPost?.thai_date}
                   </span>
                 </div>
               </div>
@@ -126,7 +126,7 @@ const BlogDetail = () => {
         {/* Blog content */}
         <section className="py-12 px-4">
           <div className="container mx-auto max-w-4xl">
-            {blogPost.image_url && (
+            {blogPost?.image_url && (
               <div className="mb-8 overflow-hidden rounded-lg">
                 <img 
                   src={blogPost.image_url} 
@@ -137,7 +137,7 @@ const BlogDetail = () => {
             )}
             
             <div className="prose prose-lg max-w-none">
-              <p className="text-xl text-gray-700 leading-relaxed mb-8">{blogPost.excerpt}</p>
+              <p className="text-xl text-gray-700 leading-relaxed mb-8">{blogPost?.excerpt}</p>
               
               {/* For now we'll display the excerpt as content since we don't have actual content in the database */}
               <div className="bg-blue-50 p-6 rounded-md mb-8">
