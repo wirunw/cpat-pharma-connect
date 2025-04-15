@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent,
@@ -20,77 +20,60 @@ import { Eye, MailOpen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
-
-// Sample data
-const initialMessages = [
-  {
-    id: 1,
-    name: "สมชาย ใจดี",
-    email: "somchai@example.com",
-    phone: "081-234-5678",
-    message: "สนใจสมัครเรียนหลักสูตรการบริหารเภสัชกิจ มีรายละเอียดเพิ่มเติมไหมครับ รบกวนส่งข้อมูลมาทางอีเมลด้วยนะครับ ขอบคุณมากครับ",
-    date: "12 เมษายน 2025",
-    time: "14:30 น.",
-    read: false
-  },
-  {
-    id: 2,
-    name: "สมศรี มีสุข",
-    email: "somsri@example.com",
-    phone: "089-876-5432",
-    message: "อยากสอบถามเกี่ยวกับค่าใช้จ่ายในหลักสูตร การบริหารเภสัชกิจ ทั้งหมดเท่าไหร่คะ และมีทุนการศึกษาหรือส่วนลดสำหรับสมาชิกองค์กรหรือไม่",
-    date: "10 เมษายน 2025",
-    time: "10:15 น.",
-    read: false
-  },
-  {
-    id: 3,
-    name: "วิชัย สุขสงวน",
-    email: "wichai@example.com",
-    phone: "062-345-6789",
-    message: "ขอสอบถามเรื่องการสมัครเรียนครับ มีเรียนออนไลน์หรือไม่ และถ้าเราไม่สามารถเข้าเรียนได้บางวัน จะมีการบันทึกคลาสให้ดูย้อนหลังไหมครับ",
-    date: "5 เมษายน 2025",
-    time: "16:45 น.",
-    read: true
-  },
-  {
-    id: 4,
-    name: "นภา สมใจ",
-    email: "napha@example.com",
-    phone: "091-987-6543",
-    message: "ดิฉันสนใจในหลักสูตรการบริหารเภสัชกิจ แต่อยากทราบว่าจำเป็นต้องมีพื้นฐานด้านการบริหารธุรกิจมาก่อนหรือไม่ และจบแล้วสามารถนำไปต่อยอดในการทำงานด้านใดได้บ้าง",
-    date: "2 เมษายน 2025",
-    time: "09:00 น.",
-    read: true
-  },
-  {
-    id: 5,
-    name: "ประวิทย์ วงศ์ทอง",
-    email: "prawit@example.com",
-    phone: "085-678-9012",
-    message: "ผมเป็นเภสัชกรที่ทำงานในโรงพยาบาลมา 5 ปี อยากพัฒนาตนเองด้านการบริหาร หลักสูตรนี้เหมาะกับผมหรือไม่ครับ และมีตัวอย่างความสำเร็จของศิษย์เก่าให้ดูหรือไม่",
-    date: "28 มีนาคม 2025",
-    time: "13:20 น.",
-    read: true
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
 
 const MessagesManager = () => {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState<any[]>([]);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleViewMessage = (message: any) => {
+  // Fetch messages from Supabase
+  const fetchMessages = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      setMessages(data || []);
+    } catch (error: any) {
+      console.error('Error fetching messages:', error.message);
+      toast.error('ไม่สามารถดึงข้อมูลข้อความได้');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
+  const handleViewMessage = async (message: any) => {
     setSelectedMessage(message);
     setIsViewDialogOpen(true);
     
     // Mark as read if not already
     if (!message.read) {
-      const updatedMessages = messages.map(msg => 
-        msg.id === message.id ? { ...msg, read: true } : msg
-      );
-      setMessages(updatedMessages);
+      try {
+        const { error } = await supabase
+          .from('contact_messages')
+          .update({ read: true })
+          .eq('id', message.id);
+        
+        if (error) throw error;
+        
+        // Update local state to reflect the change
+        setMessages(messages.map(msg => 
+          msg.id === message.id ? { ...msg, read: true } : msg
+        ));
+      } catch (error: any) {
+        console.error('Error marking message as read:', error.message);
+      }
     }
   };
 
@@ -99,24 +82,74 @@ const MessagesManager = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteMessage = () => {
+  const handleDeleteMessage = async () => {
     if (!selectedMessage) return;
     
-    const filteredMessages = messages.filter(message => message.id !== selectedMessage.id);
-    setMessages(filteredMessages);
-    setIsDeleteDialogOpen(false);
-    toast.success("ลบข้อความสำเร็จ");
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .delete()
+        .eq('id', selectedMessage.id);
+      
+      if (error) throw error;
+      
+      await fetchMessages();
+      setIsDeleteDialogOpen(false);
+      toast.success("ลบข้อความสำเร็จ");
+    } catch (error: any) {
+      console.error('Error deleting message:', error.message);
+      toast.error('ไม่สามารถลบข้อความได้');
+    }
   };
 
-  const markAllAsRead = () => {
-    const updatedMessages = messages.map(message => ({ ...message, read: true }));
-    setMessages(updatedMessages);
-    toast.success("ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว");
+  const markAllAsRead = async () => {
+    const unreadMessages = messages.filter(message => !message.read);
+    
+    if (unreadMessages.length === 0) {
+      toast.info("ไม่มีข้อความที่ยังไม่ได้อ่าน");
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .update({ read: true })
+        .in('id', unreadMessages.map(msg => msg.id));
+      
+      if (error) throw error;
+      
+      await fetchMessages();
+      toast.success("ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว");
+    } catch (error: any) {
+      console.error('Error marking all as read:', error.message);
+      toast.error('ไม่สามารถทำเครื่องหมายทั้งหมดว่าอ่านแล้ว');
+    }
   };
 
-  const deleteAllMessages = () => {
-    setMessages([]);
-    toast.success("ลบข้อความทั้งหมดสำเร็จ");
+  const deleteAllMessages = async () => {
+    if (messages.length === 0) {
+      toast.info("ไม่มีข้อความที่จะลบ");
+      return;
+    }
+    
+    if (!window.confirm("คุณแน่ใจหรือไม่ที่จะลบข้อความทั้งหมด? การกระทำนี้ไม่สามารถยกเลิกได้")) {
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .delete()
+        .in('id', messages.map(msg => msg.id));
+      
+      if (error) throw error;
+      
+      await fetchMessages();
+      toast.success("ลบข้อความทั้งหมดสำเร็จ");
+    } catch (error: any) {
+      console.error('Error deleting all messages:', error.message);
+      toast.error('ไม่สามารถลบข้อความทั้งหมด');
+    }
   };
 
   const unreadCount = messages.filter(message => !message.read).length;
@@ -141,7 +174,9 @@ const MessagesManager = () => {
           </div>
         </div>
 
-        {messages.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
+        ) : messages.length > 0 ? (
           <div className="space-y-4">
             {messages.map(message => (
               <Card key={message.id} className={`${!message.read ? 'border-blue-300 bg-blue-50' : ''}`}>
@@ -160,8 +195,8 @@ const MessagesManager = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-gray-500 text-sm">{message.date}</div>
-                      <div className="text-gray-400 text-xs">{message.time}</div>
+                      <div className="text-gray-500 text-sm">{message.thai_date}</div>
+                      <div className="text-gray-400 text-xs">{message.thai_time}</div>
                     </div>
                   </div>
                   <p className="text-gray-700 line-clamp-2 mb-3">{message.message}</p>
@@ -205,7 +240,7 @@ const MessagesManager = () => {
             <DialogHeader>
               <DialogTitle>ข้อความจาก {selectedMessage?.name}</DialogTitle>
               <DialogDescription>
-                {selectedMessage?.date} • {selectedMessage?.time}
+                {selectedMessage?.thai_date} • {selectedMessage?.thai_time}
               </DialogDescription>
             </DialogHeader>
             {selectedMessage && (
@@ -252,7 +287,7 @@ const MessagesManager = () => {
             {selectedMessage && (
               <div className="py-4">
                 <p className="font-medium">ข้อความจาก: {selectedMessage.name}</p>
-                <p className="text-sm text-gray-500 mt-1">{selectedMessage.date} • {selectedMessage.time}</p>
+                <p className="text-sm text-gray-500 mt-1">{selectedMessage.thai_date} • {selectedMessage.thai_time}</p>
               </div>
             )}
             <DialogFooter>

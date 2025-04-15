@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent,
@@ -26,33 +26,45 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Download, MailPlus, Search, Trash2, UserPlus } from "lucide-react";
+import { Download, MailPlus, Search, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
-
-// Sample data
-const initialSubscribers = [
-  { id: 1, email: "somchai@example.com", date: "12 เมษายน 2025", source: "หน้าบทความ" },
-  { id: 2, email: "somsri@example.com", date: "10 เมษายน 2025", source: "หน้าหลัก" },
-  { id: 3, email: "wichai@example.com", date: "8 เมษายน 2025", source: "หน้าหลัก" },
-  { id: 4, email: "napha@example.com", date: "5 เมษายน 2025", source: "หน้าเกี่ยวกับเรา" },
-  { id: 5, email: "pravit@example.com", date: "2 เมษายน 2025", source: "หน้าหลัก" },
-  { id: 6, email: "ratree@example.com", date: "28 มีนาคม 2025", source: "หน้าบทความ" },
-  { id: 7, email: "sombat@example.com", date: "25 มีนาคม 2025", source: "หน้าหลัก" },
-  { id: 8, email: "malee@example.com", date: "20 มีนาคม 2025", source: "หน้าบทความ" },
-  { id: 9, email: "pranee@example.com", date: "15 มีนาคม 2025", source: "หน้าเกี่ยวกับเรา" },
-  { id: 10, email: "somsak@example.com", date: "10 มีนาคม 2025", source: "หน้าหลัก" }
-];
+import { supabase } from "@/integrations/supabase/client";
 
 const SubscriptionsManager = () => {
-  const [subscribers, setSubscribers] = useState(initialSubscribers);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubscriber, setSelectedSubscriber] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleAddSubscriber = () => {
+  // Fetch subscribers from Supabase
+  const fetchSubscribers = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('subscribers')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      setSubscribers(data || []);
+    } catch (error: any) {
+      console.error('Error fetching subscribers:', error.message);
+      toast.error('ไม่สามารถดึงข้อมูลผู้รับข่าวสารได้');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubscribers();
+  }, []);
+
+  const handleAddSubscriber = async () => {
     if (!newEmail) {
       toast.error("กรุณากรอกอีเมล");
       return;
@@ -65,35 +77,49 @@ const SubscriptionsManager = () => {
       return;
     }
     
-    // Check if email already exists
-    if (subscribers.some(sub => sub.email === newEmail)) {
-      toast.error("อีเมลนี้มีอยู่ในระบบแล้ว");
-      return;
+    try {
+      // Check if email already exists
+      const { data: existingData } = await supabase
+        .from('subscribers')
+        .select('id')
+        .eq('email', newEmail.toLowerCase())
+        .single();
+
+      if (existingData) {
+        toast.error("อีเมลนี้มีอยู่ในระบบแล้ว");
+        return;
+      }
+      
+      const today = new Date();
+      const day = today.getDate();
+      const thaiMonths = [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ];
+      const month = thaiMonths[today.getMonth()];
+      const year = today.getFullYear() + 543; // Convert to Buddhist Era
+      const formattedDate = `${day} ${month} ${year}`;
+      
+      const { error } = await supabase
+        .from('subscribers')
+        .insert([
+          {
+            email: newEmail.toLowerCase(),
+            thai_date: formattedDate,
+            source: "เพิ่มโดยผู้ดูแลระบบ"
+          }
+        ]);
+      
+      if (error) throw error;
+      
+      await fetchSubscribers();
+      setNewEmail("");
+      setIsAddDialogOpen(false);
+      toast.success("เพิ่มผู้รับข่าวสารสำเร็จ");
+    } catch (error: any) {
+      console.error('Error adding subscriber:', error.message);
+      toast.error('ไม่สามารถเพิ่มผู้รับข่าวสารได้');
     }
-    
-    const today = new Date();
-    const day = today.getDate();
-    const thaiMonths = [
-      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-    ];
-    const month = thaiMonths[today.getMonth()];
-    const year = today.getFullYear() + 543; // Convert to Buddhist Era
-    const formattedDate = `${day} ${month} ${year}`;
-    
-    const newId = Math.max(...subscribers.map(sub => sub.id)) + 1;
-    
-    const newSubscriber = {
-      id: newId,
-      email: newEmail,
-      date: formattedDate,
-      source: "เพิ่มโดยผู้ดูแลระบบ"
-    };
-    
-    setSubscribers([newSubscriber, ...subscribers]);
-    setNewEmail("");
-    setIsAddDialogOpen(false);
-    toast.success("เพิ่มผู้รับข่าวสารสำเร็จ");
   };
 
   const handleDeleteClick = (subscriber: any) => {
@@ -101,26 +127,42 @@ const SubscriptionsManager = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteSubscriber = () => {
+  const handleDeleteSubscriber = async () => {
     if (!selectedSubscriber) return;
     
-    const filteredSubscribers = subscribers.filter(sub => sub.id !== selectedSubscriber.id);
-    setSubscribers(filteredSubscribers);
-    setIsDeleteDialogOpen(false);
-    toast.success("ลบผู้รับข่าวสารสำเร็จ");
+    try {
+      const { error } = await supabase
+        .from('subscribers')
+        .delete()
+        .eq('id', selectedSubscriber.id);
+      
+      if (error) throw error;
+      
+      await fetchSubscribers();
+      setIsDeleteDialogOpen(false);
+      toast.success("ลบผู้รับข่าวสารสำเร็จ");
+    } catch (error: any) {
+      console.error('Error deleting subscriber:', error.message);
+      toast.error('ไม่สามารถลบผู้รับข่าวสารได้');
+    }
   };
 
   const filteredSubscribers = subscribers.filter(sub => 
     sub.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sub.source.toLowerCase().includes(searchTerm.toLowerCase())
+    (sub.source && sub.source.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const exportToCSV = () => {
+    if (subscribers.length === 0) {
+      toast.error('ไม่มีข้อมูลสำหรับดาวน์โหลด');
+      return;
+    }
+    
     const headers = ["ID", "Email", "Date", "Source"];
     const csvData = [
       headers.join(","),
       ...subscribers.map(sub => 
-        [sub.id, sub.email, sub.date, sub.source].join(",")
+        [sub.id, sub.email, sub.thai_date, sub.source].join(",")
       )
     ].join("\n");
     
@@ -150,6 +192,7 @@ const SubscriptionsManager = () => {
               variant="outline" 
               className="flex items-center gap-2"
               onClick={exportToCSV}
+              disabled={subscribers.length === 0}
             >
               <Download className="h-4 w-4" />
               ส่งออกข้อมูล
@@ -184,7 +227,9 @@ const SubscriptionsManager = () => {
             <CardTitle className="text-lg">รายชื่อสมาชิกรับข่าวสาร ({filteredSubscribers.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            {filteredSubscribers.length > 0 ? (
+            {isLoading ? (
+              <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
+            ) : filteredSubscribers.length > 0 ? (
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
@@ -201,7 +246,7 @@ const SubscriptionsManager = () => {
                       <TableRow key={subscriber.id}>
                         <TableCell className="font-medium">{index + 1}</TableCell>
                         <TableCell>{subscriber.email}</TableCell>
-                        <TableCell>{subscriber.date}</TableCell>
+                        <TableCell>{subscriber.thai_date}</TableCell>
                         <TableCell>{subscriber.source}</TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -274,7 +319,7 @@ const SubscriptionsManager = () => {
             {selectedSubscriber && (
               <div className="py-4">
                 <p className="font-medium">{selectedSubscriber.email}</p>
-                <p className="text-sm text-gray-500 mt-1">ลงทะเบียนเมื่อ: {selectedSubscriber.date}</p>
+                <p className="text-sm text-gray-500 mt-1">ลงทะเบียนเมื่อ: {selectedSubscriber.thai_date}</p>
                 <p className="text-sm text-gray-500">แหล่งที่มา: {selectedSubscriber.source}</p>
               </div>
             )}

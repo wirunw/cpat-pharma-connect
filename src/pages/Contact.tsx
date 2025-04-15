@@ -1,45 +1,97 @@
 
 import React, { useState } from "react";
-import { Phone, Mail, MapPin, Clock, Download, Send } from "lucide-react";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Building2, Mail, MapPin, Phone } from "lucide-react";
+import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+const formSchema = z.object({
+  name: z.string().min(2, { message: "กรุณากรอกชื่อที่มีความยาวอย่างน้อย 2 ตัวอักษร" }),
+  email: z.string().email({ message: "กรุณากรอกอีเมลให้ถูกต้อง" }),
+  phone: z.string().min(10, { message: "กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง" }),
+  message: z.string().min(10, { message: "กรุณากรอกข้อความที่มีความยาวอย่างน้อย 10 ตัวอักษร" }),
+});
 
 const Contact = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: ""
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    toast({
-      title: "ข้อความถูกส่งเรียบร้อยแล้ว",
-      description: "เราจะติดต่อกลับภายใน 24 ชั่วโมง",
-    });
-    setFormData({
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
       name: "",
       email: "",
       phone: "",
-      subject: "",
-      message: ""
-    });
+      message: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
+    
+    try {
+      const today = new Date();
+      
+      // Format Thai date
+      const day = today.getDate();
+      const thaiMonths = [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ];
+      const month = thaiMonths[today.getMonth()];
+      const year = today.getFullYear() + 543; // Convert to Buddhist Era
+      const thaiDate = `${day} ${month} ${year}`;
+      
+      // Format Thai time
+      const hours = today.getHours().toString().padStart(2, '0');
+      const minutes = today.getMinutes().toString().padStart(2, '0');
+      const thaiTime = `${hours}:${minutes} น.`;
+      
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert([
+          { 
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            message: values.message,
+            read: false,
+            thai_date: thaiDate,
+            thai_time: thaiTime
+          }
+        ]);
+      
+      if (error) throw error;
+      
+      form.reset();
+      toast.success("ส่งข้อความสำเร็จ ขอบคุณสำหรับการติดต่อ");
+    } catch (error: any) {
+      console.error('Error submitting contact form:', error);
+      toast.error("ไม่สามารถส่งข้อความได้ โปรดลองอีกครั้ง");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -52,306 +104,149 @@ const Contact = () => {
           <div className="container mx-auto max-w-6xl">
             <h1 className="text-3xl md:text-5xl font-bold mb-4">ติดต่อเรา</h1>
             <p className="text-xl max-w-3xl">
-              หากคุณมีคำถามหรือต้องการข้อมูลเพิ่มเติมเกี่ยวกับหลักสูตรและการสมัครเรียน 
-              สามารถติดต่อเราได้ตามช่องทางด้านล่าง
+              หากคุณมีคำถามหรือต้องการข้อมูลเพิ่มเติมเกี่ยวกับหลักสูตรของเรา โปรดติดต่อเราผ่านช่องทางด้านล่าง
             </p>
           </div>
         </section>
         
-        {/* Contact Info Section */}
-        <section className="py-16 px-4 bg-white">
+        {/* Contact Form and Info */}
+        <section className="py-16 px-4">
           <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Phone Contact */}
-              <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                    <Phone className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-blue-900 mb-2">โทรศัพท์</h3>
-                  <p className="text-gray-700 mb-4">ติดต่อเราโดยตรงทางโทรศัพท์</p>
-                  <a href="tel:025919992" className="text-blue-600 font-medium">02-591-9992-5</a>
-                </CardContent>
-              </Card>
-              
-              {/* Email Contact */}
-              <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                    <Mail className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-blue-900 mb-2">อีเมล</h3>
-                  <p className="text-gray-700 mb-4">ส่งข้อความถึงเราทางอีเมล</p>
-                  <a href="mailto:info@cpat.ac.th" className="text-blue-600 font-medium">info@cpat.ac.th</a>
-                </CardContent>
-              </Card>
-              
-              {/* Office Hours */}
-              <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                    <Clock className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-blue-900 mb-2">เวลาทำการ</h3>
-                  <p className="text-gray-700 mb-4">วันจันทร์ - วันศุกร์</p>
-                  <p className="text-blue-600 font-medium">8:30 - 16:30 น.</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-        
-        {/* Map & Form Section */}
-        <section className="py-16 px-4 bg-blue-50">
-          <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Map & Address */}
-              <div>
-                <h2 className="text-2xl font-bold text-blue-900 mb-6">ที่ตั้งของเรา</h2>
-                <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-                  <div className="w-full h-80 bg-gray-200 rounded mb-4">
-                    {/* Replace with actual map embed */}
-                    <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600">
-                      <p>แผนที่ Google Maps จะปรากฏที่นี่</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <MapPin className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-1" />
-                    <p className="text-gray-700">
-                      อาคารมหิตลาธิเบศร ชั้น 9 สภาเภสัชกรรม 3 ตำบลตลาดขวัญ อำเภอเมือง จังหวัดนนทบุรี 11000
-                    </p>
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-bold text-blue-900 mb-4">การเดินทาง</h3>
-                <div className="space-y-4">
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <h4 className="font-bold text-blue-800 mb-2">รถประจำทาง</h4>
-                    <p className="text-gray-700">สาย 32, 51, 104, 166, 203, 351</p>
-                  </div>
-                  
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <h4 className="font-bold text-blue-800 mb-2">รถไฟฟ้า MRT</h4>
-                    <p className="text-gray-700">สถานีกระทรวงสาธารณสุข แล้วต่อรถแท็กซี่หรือรถประจำทางประมาณ 10 นาที</p>
-                  </div>
-                </div>
-              </div>
-              
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Contact Form */}
               <div>
-                <h2 className="text-2xl font-bold text-blue-900 mb-6">ส่งข้อความถึงเรา</h2>
-                <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label htmlFor="name" className="block text-gray-700 font-medium mb-2">ชื่อ-นามสกุล *</label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                <Card>
+                  <CardHeader>
+                    <CardTitle>ส่งข้อความถึงเรา</CardTitle>
+                    <CardDescription>กรอกแบบฟอร์มด้านล่างเพื่อติดต่อกับทีมงานของเรา</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>ชื่อ-นามสกุล</FormLabel>
+                              <FormControl>
+                                <Input placeholder="กรอกชื่อและนามสกุลของคุณ" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>อีเมล</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="example@domain.com" type="email" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>เบอร์โทรศัพท์</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="081-234-5678" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <FormField
+                          control={form.control}
+                          name="message"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>ข้อความ</FormLabel>
+                              <FormControl>
+                                <Textarea placeholder="กรอกข้อความที่คุณต้องการส่งถึงเรา" rows={5} {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                          {isSubmitting ? "กำลังส่ง..." : "ส่งข้อความ"}
+                        </Button>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Contact Info */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Building2 className="h-5 w-5 text-blue-600" />
+                      <span>วิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">College of Pharmacy Administration of Thailand</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">ข้อมูลการติดต่อ</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">ที่อยู่</p>
+                        <p className="text-gray-600">123 ถนนสุขุมวิท แขวงคลองเตยเหนือ เขตวัฒนา กรุงเทพมหานคร 10110</p>
+                      </div>
                     </div>
-                    
-                    <div>
-                      <label htmlFor="email" className="block text-gray-700 font-medium mb-2">อีเมล *</label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                    <div className="flex items-start gap-3">
+                      <Phone className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">โทรศัพท์</p>
+                        <p className="text-gray-600">02-123-4567</p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">เบอร์โทรศัพท์</label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                    <div className="flex items-start gap-3">
+                      <Mail className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">อีเมล</p>
+                        <p className="text-gray-600">info@cpat.co.th</p>
+                      </div>
                     </div>
-                    
-                    <div>
-                      <label htmlFor="subject" className="block text-gray-700 font-medium mb-2">เรื่อง *</label>
-                      <select
-                        id="subject"
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">-- เลือกหัวข้อ --</option>
-                        <option value="admission">สอบถามการรับสมัคร</option>
-                        <option value="course">ข้อมูลหลักสูตร</option>
-                        <option value="payment">การชำระเงิน</option>
-                        <option value="other">อื่นๆ</option>
-                      </select>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">แผนที่</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px] bg-gray-200 rounded-md overflow-hidden">
+                      <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3875.5613193911!2d100.56569491483024!3d13.741893990351267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29ee109dab6e1%3A0xfd15aa1c632d9677!2sSukhumvit%20Rd%2C%20Khlong%20Toei%2C%20Bangkok!5e0!3m2!1sen!2sth!4v1650123456789!5m2!1sen!2sth" 
+                        width="100%" 
+                        height="100%" 
+                        style={{ border: 0 }} 
+                        allowFullScreen 
+                        loading="lazy" 
+                        referrerPolicy="no-referrer-when-downgrade"
+                      ></iframe>
                     </div>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <label htmlFor="message" className="block text-gray-700 font-medium mb-2">ข้อความ *</label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={5}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    ></textarea>
-                  </div>
-                  
-                  <Button type="submit" className="w-full md:w-auto flex items-center justify-center">
-                    <Send className="mr-2 h-4 w-4" />
-                    ส่งข้อความ
-                  </Button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* FAQ Section */}
-        <section className="py-16 px-4 bg-white">
-          <div className="container mx-auto max-w-4xl">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-blue-900 mb-4">คำถามที่พบบ่อย</h2>
-              <p className="text-xl text-blue-700 max-w-3xl mx-auto">
-                รวบรวมคำถามและคำตอบที่พบบ่อยเกี่ยวกับการติดต่อและการสมัครเรียน
-              </p>
-            </div>
-            
-            <Accordion type="single" collapsible className="bg-blue-50 rounded-lg">
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="px-6 py-4">
-                  <span className="text-left">จะขอเยี่ยมชมสถาบันได้อย่างไร?</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-4">
-                  <p className="text-gray-700">
-                    ท่านสามารถนัดหมายเพื่อเข้าเยี่ยมชมสถาบันได้โดยโทรมาที่เบอร์ 02-591-9992-5 หรือส่งอีเมลมาที่ info@cpat.ac.th ล่วงหน้าอย่างน้อย 3 วันทำการ เพื่อให้เราสามารถจัดเตรียมการต้อนรับและนำชมได้อย่างเหมาะสม
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-2">
-                <AccordionTrigger className="px-6 py-4">
-                  <span className="text-left">มีที่จอดรถสำหรับผู้มาติดต่อหรือไม่?</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-4">
-                  <p className="text-gray-700">
-                    มีที่จอดรถสำหรับผู้มาติดต่อโดยเฉพาะ แต่มีจำนวนจำกัด แนะนำให้แจ้งล่วงหน้าหากต้องการใช้บริการที่จอดรถ หรือท่านสามารถใช้บริการที่จอดรถของกระทรวงสาธารณสุขซึ่งอยู่ใกล้เคียงได้
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-3">
-                <AccordionTrigger className="px-6 py-4">
-                  <span className="text-left">มีบริการให้คำปรึกษาเกี่ยวกับหลักสูตรหรือไม่?</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-4">
-                  <p className="text-gray-700">
-                    เรามีทีมงานให้คำปรึกษาเกี่ยวกับหลักสูตรโดยเฉพาะ ท่านสามารถนัดหมายเพื่อขอรับคำปรึกษาแบบตัวต่อตัวได้ทั้งที่สถาบันหรือผ่านทาง Zoom Meeting โดยไม่มีค่าใช้จ่าย กรุณาติดต่อฝ่ายรับสมัครเพื่อนัดหมายล่วงหน้า
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-4">
-                <AccordionTrigger className="px-6 py-4">
-                  <span className="text-left">ต้องมาติดต่อด้วยตนเองเพื่อสมัครเรียนหรือไม่?</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-4">
-                  <p className="text-gray-700">
-                    ไม่จำเป็น ท่านสามารถสมัครเรียนออนไลน์ผ่านทางเว็บไซต์ของเราได้ โดยกรอกข้อมูลและอัพโหลดเอกสารที่จำเป็น อย่างไรก็ตาม ในขั้นตอนการสัมภาษณ์ ท่านอาจต้องมาพบกับคณะกรรมการด้วยตนเองหรือผ่านระบบการประชุมทางไกล
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </section>
-        
-        {/* Downloads Section */}
-        <section className="py-16 px-4 bg-blue-50">
-          <div className="container mx-auto max-w-6xl">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-blue-900 mb-4">เอกสารดาวน์โหลด</h2>
-              <p className="text-xl text-blue-700 max-w-3xl mx-auto">
-                ดาวน์โหลดเอกสารสำคัญเกี่ยวกับการสมัครและข้อมูลหลักสูตร
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Download Item 1 */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-lg font-bold text-blue-900 mb-2">คู่มือการสมัคร</h3>
-                <p className="text-gray-700 mb-4 flex-grow">รายละเอียดขั้นตอนการสมัครและเอกสารที่ต้องใช้</p>
-                <Button variant="outline" className="flex items-center">
-                  <Download className="mr-2 h-4 w-4" />
-                  ดาวน์โหลด PDF
-                </Button>
-              </div>
-              
-              {/* Download Item 2 */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-lg font-bold text-blue-900 mb-2">แผ่นพับหลักสูตร</h3>
-                <p className="text-gray-700 mb-4 flex-grow">ข้อมูลโดยย่อของหลักสูตรทั้งหมดที่เปิดสอน</p>
-                <Button variant="outline" className="flex items-center">
-                  <Download className="mr-2 h-4 w-4" />
-                  ดาวน์โหลด PDF
-                </Button>
-              </div>
-              
-              {/* Download Item 3 */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-lg font-bold text-blue-900 mb-2">แบบฟอร์มใบสมัคร</h3>
-                <p className="text-gray-700 mb-4 flex-grow">แบบฟอร์มสำหรับกรอกข้อมูลสมัครเรียน</p>
-                <Button variant="outline" className="flex items-center">
-                  <Download className="mr-2 h-4 w-4" />
-                  ดาวน์โหลด PDF
-                </Button>
-              </div>
-              
-              {/* Download Item 4 */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-lg font-bold text-blue-900 mb-2">ตารางค่าธรรมเนียม</h3>
-                <p className="text-gray-700 mb-4 flex-grow">รายละเอียดค่าธรรมเนียมการศึกษาทุกหลักสูตร</p>
-                <Button variant="outline" className="flex items-center">
-                  <Download className="mr-2 h-4 w-4" />
-                  ดาวน์โหลด PDF
-                </Button>
-              </div>
-              
-              {/* Download Item 5 */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-lg font-bold text-blue-900 mb-2">ปฏิทินการศึกษา</h3>
-                <p className="text-gray-700 mb-4 flex-grow">กำหนดการเรียนการสอนและกิจกรรมสำคัญประจำปี</p>
-                <Button variant="outline" className="flex items-center">
-                  <Download className="mr-2 h-4 w-4" />
-                  ดาวน์โหลด PDF
-                </Button>
-              </div>
-              
-              {/* Download Item 6 */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
-                <h3 className="text-lg font-bold text-blue-900 mb-2">รายละเอียดหลักสูตร</h3>
-                <p className="text-gray-700 mb-4 flex-grow">โครงสร้างหลักสูตรและคำอธิบายรายวิชา</p>
-                <Button variant="outline" className="flex items-center">
-                  <Download className="mr-2 h-4 w-4" />
-                  ดาวน์โหลด PDF
-                </Button>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>

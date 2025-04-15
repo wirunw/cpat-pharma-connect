@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -22,57 +22,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Edit2, FileText, Plus, Trash2 } from "lucide-react";
+import { ArrowRight, Edit2, FileText, Plus, Trash2, Upload } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import { toast } from "sonner";
-
-// Sample blog posts data, would come from API in a real app
-const initialBlogPosts = [
-  {
-    id: 1,
-    title: "การพัฒนาความรู้ด้านการบริหารเภสัชกิจในยุคดิจิทัล",
-    excerpt: "บทความนี้กล่าวถึงความสำคัญของการพัฒนาทักษะการบริหารเภสัชกิจในยุคที่เทคโนโลยีดิจิทัลกำลังเปลี่ยนแปลงวงการเภสัชกรรม",
-    date: "10 มีนาคม 2025",
-    imageUrl: "/placeholder.svg",
-    category: "การศึกษา",
-    status: "published"
-  },
-  {
-    id: 2,
-    title: "บทบาทของเภสัชกรในการพัฒนาระบบสาธารณสุขไทย",
-    excerpt: "เภสัชกรมีบทบาทสำคัญในการพัฒนาระบบสาธารณสุขของประเทศไทย บทความนี้จะอธิบายถึงความสำคัญและโอกาสในการมีส่วนร่วม",
-    date: "25 กุมภาพันธ์ 2025",
-    imageUrl: "/placeholder.svg",
-    category: "วิชาชีพ",
-    status: "published"
-  },
-  {
-    id: 3,
-    title: "แนวโน้มใหม่ในการบริหารร้านยาให้ประสบความสำเร็จ",
-    excerpt: "การบริหารร้านยาในปัจจุบันต้องปรับตัวให้ทันกับการเปลี่ยนแปลง บทความนี้รวบรวมเทคนิคการบริหารร้านยาสมัยใหม่",
-    date: "15 มกราคม 2025",
-    imageUrl: "/placeholder.svg",
-    category: "ธุรกิจ",
-    status: "published"
-  },
-  {
-    id: 4,
-    title: "แนวทางการจัดการระบบยาในโรงพยาบาล",
-    excerpt: "ระบบการจัดการยาที่มีประสิทธิภาพเป็นสิ่งสำคัญในโรงพยาบาล บทความนี้นำเสนอแนวทางปฏิบัติที่ดีที่สุด",
-    date: "5 มกราคม 2025",
-    imageUrl: "/placeholder.svg",
-    category: "ระบบยา",
-    status: "draft"
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
 
 const BlogManager = () => {
-  const [blogPosts, setBlogPosts] = useState(initialBlogPosts);
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newPost, setNewPost] = useState({
     title: "",
     excerpt: "",
@@ -80,55 +44,179 @@ const BlogManager = () => {
     status: "draft" as "draft" | "published"
   });
 
-  const handleAddPost = () => {
-    const newId = Math.max(...blogPosts.map(post => post.id)) + 1;
-    const today = new Date();
-    const formattedDate = `${today.getDate()} ${getThaiMonth(today.getMonth())} ${today.getFullYear() + 543}`;
-    
-    const postToAdd = {
-      id: newId,
-      title: newPost.title,
-      excerpt: newPost.excerpt,
-      date: formattedDate,
-      imageUrl: "/placeholder.svg",
-      category: newPost.category,
-      status: newPost.status
-    };
-    
-    setBlogPosts([...blogPosts, postToAdd]);
-    setNewPost({
-      title: "",
-      excerpt: "",
-      category: "",
-      status: "draft"
-    });
-    setIsAddDialogOpen(false);
-    toast.success("เพิ่มบทความใหม่สำเร็จ");
+  // Fetch blog posts from Supabase
+  const fetchBlogPosts = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      setBlogPosts(data || []);
+    } catch (error: any) {
+      console.error('Error fetching blog posts:', error.message);
+      toast.error('ไม่สามารถดึงข้อมูลบทความได้');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleUpdatePost = () => {
-    if (!selectedPost) return;
-    
-    const updatedPosts = blogPosts.map(post => 
-      post.id === selectedPost.id ? { ...selectedPost } : post
-    );
-    
-    setBlogPosts(updatedPosts);
-    setIsEditDialogOpen(false);
-    toast.success("อัปเดตบทความสำเร็จ");
+  useEffect(() => {
+    fetchBlogPosts();
+  }, []);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleDeletePost = () => {
+  const uploadImage = async (file: File) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `blog/${fileName}`;
+      
+      const { error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file);
+      
+      if (error) throw error;
+      
+      const { data } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+      
+      return data.publicUrl;
+    } catch (error: any) {
+      console.error('Error uploading image:', error.message);
+      toast.error('อัปโหลดรูปภาพไม่สำเร็จ');
+      return null;
+    }
+  };
+
+  const handleAddPost = async () => {
+    if (!newPost.title || !newPost.excerpt || !newPost.category) {
+      toast.error('กรุณากรอกข้อมูลให้ครบถ้วน');
+      return;
+    }
+
+    try {
+      let imageUrl = '/placeholder.svg';
+      
+      if (imageFile) {
+        const uploadedUrl = await uploadImage(imageFile);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+      
+      const today = new Date();
+      const thaiDate = `${today.getDate()} ${getThaiMonth(today.getMonth())} ${today.getFullYear() + 543}`;
+      
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .insert([
+          {
+            title: newPost.title,
+            excerpt: newPost.excerpt,
+            category: newPost.category,
+            status: newPost.status,
+            image_url: imageUrl,
+            thai_date: thaiDate
+          }
+        ])
+        .select();
+      
+      if (error) throw error;
+      
+      await fetchBlogPosts();
+      
+      setNewPost({
+        title: "",
+        excerpt: "",
+        category: "",
+        status: "draft"
+      });
+      setImageFile(null);
+      setImagePreview(null);
+      setIsAddDialogOpen(false);
+      toast.success('เพิ่มบทความใหม่สำเร็จ');
+    } catch (error: any) {
+      console.error('Error adding blog post:', error.message);
+      toast.error('ไม่สามารถเพิ่มบทความได้');
+    }
+  };
+
+  const handleUpdatePost = async () => {
     if (!selectedPost) return;
     
-    const filteredPosts = blogPosts.filter(post => post.id !== selectedPost.id);
-    setBlogPosts(filteredPosts);
-    setIsDeleteDialogOpen(false);
-    toast.success("ลบบทความสำเร็จ");
+    try {
+      let imageUrl = selectedPost.image_url;
+      
+      if (imageFile) {
+        const uploadedUrl = await uploadImage(imageFile);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+      
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({
+          title: selectedPost.title,
+          excerpt: selectedPost.excerpt,
+          category: selectedPost.category,
+          status: selectedPost.status,
+          image_url: imageUrl
+        })
+        .eq('id', selectedPost.id);
+      
+      if (error) throw error;
+      
+      await fetchBlogPosts();
+      setIsEditDialogOpen(false);
+      setImageFile(null);
+      setImagePreview(null);
+      toast.success('อัปเดตบทความสำเร็จ');
+    } catch (error: any) {
+      console.error('Error updating blog post:', error.message);
+      toast.error('ไม่สามารถอัปเดตบทความได้');
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!selectedPost) return;
+    
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', selectedPost.id);
+      
+      if (error) throw error;
+      
+      await fetchBlogPosts();
+      setIsDeleteDialogOpen(false);
+      toast.success('ลบบทความสำเร็จ');
+    } catch (error: any) {
+      console.error('Error deleting blog post:', error.message);
+      toast.error('ไม่สามารถลบบทความได้');
+    }
   };
 
   const handleEditClick = (post: any) => {
     setSelectedPost(post);
+    setImagePreview(post.image_url);
     setIsEditDialogOpen(true);
   };
 
@@ -168,42 +256,60 @@ const BlogManager = () => {
           </TabsList>
           
           <TabsContent value="all">
-            <div className="space-y-4">
-              {blogPosts.map(post => (
-                <BlogPostCard 
-                  key={post.id} 
-                  post={post} 
-                  onEdit={handleEditClick} 
-                  onDelete={handleDeleteClick} 
-                />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
+            ) : blogPosts.length > 0 ? (
+              <div className="space-y-4">
+                {blogPosts.map(post => (
+                  <BlogPostCard 
+                    key={post.id} 
+                    post={post} 
+                    onEdit={handleEditClick} 
+                    onDelete={handleDeleteClick} 
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">ยังไม่มีบทความ</div>
+            )}
           </TabsContent>
           
           <TabsContent value="published">
-            <div className="space-y-4">
-              {blogPosts.filter(post => post.status === 'published').map(post => (
-                <BlogPostCard 
-                  key={post.id} 
-                  post={post} 
-                  onEdit={handleEditClick} 
-                  onDelete={handleDeleteClick} 
-                />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
+            ) : blogPosts.filter(post => post.status === 'published').length > 0 ? (
+              <div className="space-y-4">
+                {blogPosts.filter(post => post.status === 'published').map(post => (
+                  <BlogPostCard 
+                    key={post.id} 
+                    post={post} 
+                    onEdit={handleEditClick} 
+                    onDelete={handleDeleteClick} 
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">ยังไม่มีบทความที่เผยแพร่</div>
+            )}
           </TabsContent>
           
           <TabsContent value="draft">
-            <div className="space-y-4">
-              {blogPosts.filter(post => post.status === 'draft').map(post => (
-                <BlogPostCard 
-                  key={post.id} 
-                  post={post} 
-                  onEdit={handleEditClick} 
-                  onDelete={handleDeleteClick} 
-                />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
+            ) : blogPosts.filter(post => post.status === 'draft').length > 0 ? (
+              <div className="space-y-4">
+                {blogPosts.filter(post => post.status === 'draft').map(post => (
+                  <BlogPostCard 
+                    key={post.id} 
+                    post={post} 
+                    onEdit={handleEditClick} 
+                    onDelete={handleDeleteClick} 
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">ยังไม่มีบทความฉบับร่าง</div>
+            )}
           </TabsContent>
         </Tabs>
 
@@ -265,9 +371,44 @@ const BlogManager = () => {
                   onChange={(e) => setNewPost({...newPost, excerpt: e.target.value})}
                 />
               </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="image" className="text-right pt-2">
+                  รูปภาพ
+                </Label>
+                <div className="col-span-3">
+                  <div className="flex items-center gap-4">
+                    <div className="border border-dashed border-gray-300 rounded-md p-4 w-full">
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                      <label htmlFor="image" className="flex flex-col items-center justify-center cursor-pointer">
+                        <Upload className="h-6 w-6 text-gray-400 mb-2" />
+                        <span className="text-sm text-gray-500">คลิกเพื่ออัปโหลดรูปภาพ</span>
+                      </label>
+                    </div>
+                    {imagePreview && (
+                      <div className="w-20 h-20 overflow-hidden rounded-md border">
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>ยกเลิก</Button>
+              <Button variant="outline" onClick={() => {
+                setIsAddDialogOpen(false);
+                setImageFile(null);
+                setImagePreview(null);
+              }}>ยกเลิก</Button>
               <Button onClick={handleAddPost}>บันทึก</Button>
             </DialogFooter>
           </DialogContent>
@@ -332,10 +473,45 @@ const BlogManager = () => {
                     onChange={(e) => setSelectedPost({...selectedPost, excerpt: e.target.value})}
                   />
                 </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label htmlFor="edit-image" className="text-right pt-2">
+                    รูปภาพ
+                  </Label>
+                  <div className="col-span-3">
+                    <div className="flex items-center gap-4">
+                      <div className="border border-dashed border-gray-300 rounded-md p-4 w-full">
+                        <Input
+                          id="edit-image"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                        <label htmlFor="edit-image" className="flex flex-col items-center justify-center cursor-pointer">
+                          <Upload className="h-6 w-6 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-500">คลิกเพื่ออัปโหลดรูปภาพใหม่</span>
+                        </label>
+                      </div>
+                      {imagePreview && (
+                        <div className="w-20 h-20 overflow-hidden rounded-md border">
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>ยกเลิก</Button>
+              <Button variant="outline" onClick={() => {
+                setIsEditDialogOpen(false);
+                setImageFile(null);
+                setImagePreview(null);
+              }}>ยกเลิก</Button>
               <Button onClick={handleUpdatePost}>บันทึกการเปลี่ยนแปลง</Button>
             </DialogFooter>
           </DialogContent>
@@ -353,7 +529,7 @@ const BlogManager = () => {
             {selectedPost && (
               <div className="py-4">
                 <p className="font-medium">{selectedPost.title}</p>
-                <p className="text-sm text-gray-500 mt-1">{selectedPost.category} • {selectedPost.date}</p>
+                <p className="text-sm text-gray-500 mt-1">{selectedPost.category} • {selectedPost.thai_date}</p>
               </div>
             )}
             <DialogFooter>
@@ -380,7 +556,7 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, onEdit, onDelete }) =
         <div className="flex flex-col md:flex-row">
           <div className="w-full md:w-48 h-48 bg-gray-100">
             <img 
-              src={post.imageUrl} 
+              src={post.image_url || '/placeholder.svg'} 
               alt={post.title} 
               className="w-full h-full object-cover"
             />
@@ -393,7 +569,7 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, onEdit, onDelete }) =
                 </Badge>
                 <span className="text-sm text-blue-600">{post.category}</span>
               </div>
-              <span className="text-sm text-gray-500">{post.date}</span>
+              <span className="text-sm text-gray-500">{post.thai_date}</span>
             </div>
             <h3 className="text-xl font-bold mb-2">{post.title}</h3>
             <p className="text-gray-600 text-sm flex-grow mb-4">{post.excerpt}</p>
