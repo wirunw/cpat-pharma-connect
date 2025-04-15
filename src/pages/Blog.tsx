@@ -15,6 +15,7 @@ const Blog = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBlogPosts();
@@ -22,46 +23,50 @@ const Blog = () => {
 
   const fetchBlogPosts = async () => {
     setIsLoading(true);
+    setFetchError(null);
+    
     try {
-      console.log("Fetching blog posts...");
+      console.log("Attempting to fetch published blog posts...");
       
-      // Make sure we're only getting published blog posts
-      const { data, error } = await supabase
+      // Simple query to get all blog posts regardless of status - for debugging
+      const { data: allPosts, error: allError } = await supabase
+        .from('blog_posts')
+        .select('*');
+      
+      if (allError) {
+        console.error('Error fetching all blog posts:', allError);
+        throw allError;
+      }
+      
+      console.log("All blog posts (for debugging):", allPosts);
+      console.log("Total posts in database:", allPosts?.length || 0);
+      
+      if (allPosts && allPosts.length > 0) {
+        console.log("Post statuses:", allPosts.map(p => `${p.id}: ${p.status}`));
+      }
+      
+      // Now fetch only published posts for display
+      const { data: publishedPosts, error } = await supabase
         .from('blog_posts')
         .select('*')
         .eq('status', 'published')
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error in query:', error);
+        console.error('Error fetching published blog posts:', error);
+        setFetchError(`Database error: ${error.message}`);
         throw error;
       }
       
-      console.log("Blog posts data:", data);
-      console.log("Query parameters:", { status: 'published' });
+      console.log("Published blog posts:", publishedPosts);
+      console.log("Total published posts:", publishedPosts?.length || 0);
       
-      // Debug the data we're getting
-      if (data && data.length > 0) {
-        console.log("Number of posts returned:", data.length);
-        console.log("First post title:", data[0].title);
-        console.log("First post status:", data[0].status);
-      } else {
-        console.log("No posts returned or data is empty");
-        // Additional check on all blog posts without filters to debug
-        const { data: allPosts, error: allError } = await supabase
-          .from('blog_posts')
-          .select('*');
-        
-        if (!allError && allPosts) {
-          console.log("All posts without filter:", allPosts.length);
-          console.log("Statuses of all posts:", allPosts.map(p => p.status));
-        }
-      }
-      
-      setBlogPosts(data || []);
+      // Ensure we're setting the posts in state
+      setBlogPosts(publishedPosts || []);
     } catch (error: any) {
-      console.error('Error fetching blog posts:', error.message);
+      console.error('Error in fetchBlogPosts():', error.message);
       toast.error("ไม่สามารถโหลดบทความได้");
+      setFetchError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -146,6 +151,17 @@ const Blog = () => {
           <div className="container mx-auto max-w-6xl">
             {isLoading ? (
               <div className="text-center py-12">กำลังโหลดข้อมูล...</div>
+            ) : fetchError ? (
+              <div className="text-center py-12 text-red-500">
+                <p className="text-xl">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
+                <p className="mt-2">{fetchError}</p>
+                <button 
+                  onClick={fetchBlogPosts}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  ลองใหม่อีกครั้ง
+                </button>
+              </div>
             ) : blogPosts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {blogPosts.map((post) => (
@@ -176,6 +192,12 @@ const Blog = () => {
               <div className="text-center py-12">
                 <p className="text-xl text-gray-500">ยังไม่มีบทความในขณะนี้</p>
                 <p className="mt-2 text-gray-400">โปรดกลับมาตรวจสอบในภายหลัง</p>
+                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md text-left max-w-2xl mx-auto">
+                  <h3 className="font-bold text-yellow-800">ข้อมูลสำหรับการแก้ไขปัญหา:</h3>
+                  <p className="text-sm text-yellow-700 mt-2">
+                    ไม่พบบทความที่เผยแพร่ กรุณาตรวจสอบสถานะของบทความในระบบ admin หรือติดต่อผู้ดูแลระบบหากคุณเห็นข้อความนี้
+                  </p>
+                </div>
               </div>
             )}
           </div>

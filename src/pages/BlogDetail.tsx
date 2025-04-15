@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -15,19 +14,26 @@ const BlogDetail = () => {
   const navigate = useNavigate();
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchBlogPost();
+    if (id) {
+      fetchBlogPost();
+    } else {
+      navigate('/blog', { replace: true });
+    }
   }, [id]);
 
   const fetchBlogPost = async () => {
     if (!id) return;
     
     setIsLoading(true);
+    setFetchError(null);
+    
     try {
       console.log("Fetching blog post with ID:", id);
       
-      // Query to get the blog post
+      // First, check if the post exists at all
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
@@ -38,24 +44,27 @@ const BlogDetail = () => {
         console.error('Error fetching blog post:', error.message);
         if (error.code === 'PGRST116') {
           // If no records are returned (PGRST116 error), redirect to NotFound
+          console.log("No blog post found with ID:", id);
           navigate('/not-found', { replace: true });
           return;
         }
         throw error;
       }
       
-      console.log("Blog post data:", data);
+      console.log("Blog post data found:", data);
       
-      // Check if the post is published or redirect to not found
+      // Check if the post is published
       if (data.status !== 'published') {
-        console.log("Post exists but is not published:", data.status);
+        console.log("Post exists but is not published. Status:", data.status);
         navigate('/not-found', { replace: true });
         return;
       }
       
+      // If we get here, the post exists and is published
       setBlogPost(data);
     } catch (error: any) {
-      console.error('Error fetching blog post:', error.message);
+      console.error('Error in fetchBlogPost():', error.message);
+      setFetchError(error.message);
       toast.error("ไม่สามารถโหลดข้อมูลบทความได้");
       
       // If there's an error, redirect to the 404 page
@@ -74,6 +83,33 @@ const BlogDetail = () => {
         <div className="flex-grow flex items-center justify-center py-12">
           <div className="text-center">
             <p className="text-gray-500">กำลังโหลดข้อมูล...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-grow flex items-center justify-center py-12">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4 text-red-600">เกิดข้อผิดพลาด</h1>
+            <p className="text-gray-500 mb-6">{fetchError}</p>
+            <div className="flex gap-4 justify-center">
+              <button 
+                onClick={fetchBlogPost}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                ลองใหม่อีกครั้ง
+              </button>
+              <Link to="/blog" className="text-blue-600 hover:underline flex items-center">
+                <ArrowLeft className="mr-1 h-4 w-4" />
+                กลับไปยังหน้าบทความทั้งหมด
+              </Link>
+            </div>
           </div>
         </div>
         <Footer />
