@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
@@ -11,9 +10,11 @@ type BlogPostUpdate = Database['public']['Tables']['blog_posts']['Update'];
 export const useBlogPosts = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchBlogPosts = async () => {
     setIsLoading(true);
+    setFetchError(null);
     try {
       const { data, error } = await supabase
         .from('blog_posts')
@@ -25,6 +26,7 @@ export const useBlogPosts = () => {
       setBlogPosts(data || []);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error.message);
+      setFetchError(error.message);
       toast.error('ไม่สามารถดึงข้อมูลบทความได้');
     } finally {
       setIsLoading(false);
@@ -114,14 +116,15 @@ export const useBlogPosts = () => {
     fetchBlogPosts,
     addBlogPost,
     updateBlogPost,
-    deleteBlogPost
+    deleteBlogPost,
+    fetchError
   };
 };
 
 const getThaiMonth = (month: number) => {
   const thaiMonths = [
     "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุ���าคม", "พฤศจิกายน", "ธันวาคม"
   ];
   return thaiMonths[month];
 };
