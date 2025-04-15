@@ -38,6 +38,7 @@ const Blog = () => {
       }
       
       console.log("Blog posts data:", data);
+      console.log("Query parameters:", { status: 'published' });
       
       // Debug the data we're getting
       if (data && data.length > 0) {
@@ -46,6 +47,15 @@ const Blog = () => {
         console.log("First post status:", data[0].status);
       } else {
         console.log("No posts returned or data is empty");
+        // Additional check on all blog posts without filters to debug
+        const { data: allPosts, error: allError } = await supabase
+          .from('blog_posts')
+          .select('*');
+        
+        if (!allError && allPosts) {
+          console.log("All posts without filter:", allPosts.length);
+          console.log("Statuses of all posts:", allPosts.map(p => p.status));
+        }
       }
       
       setBlogPosts(data || []);

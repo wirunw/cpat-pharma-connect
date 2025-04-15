@@ -27,12 +27,11 @@ const BlogDetail = () => {
     try {
       console.log("Fetching blog post with ID:", id);
       
-      // Query to get published blog posts only
+      // Query to get the blog post
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
         .eq('id', id)
-        .eq('status', 'published')
         .single();
       
       if (error) {
@@ -46,6 +45,14 @@ const BlogDetail = () => {
       }
       
       console.log("Blog post data:", data);
+      
+      // Check if the post is published or redirect to not found
+      if (data.status !== 'published') {
+        console.log("Post exists but is not published:", data.status);
+        navigate('/not-found', { replace: true });
+        return;
+      }
+      
       setBlogPost(data);
     } catch (error: any) {
       console.error('Error fetching blog post:', error.message);
