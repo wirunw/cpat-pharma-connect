@@ -17,7 +17,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
       <div className="flex justify-between items-center p-4">
         <div className="flex items-center gap-4">
           <img 
-            src="/placeholder.svg" 
+            src="/cpat-logo.png" 
             alt="CPAT Logo" 
             className="h-12 w-auto"
           />

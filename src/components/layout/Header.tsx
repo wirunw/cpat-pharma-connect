@@ -13,7 +13,7 @@ const Header = () => {
         <div className="flex items-center gap-4">
           <Link to="/">
             <img 
-              src="/placeholder.svg" 
+              src="/cpat-logo.png" 
               alt="CPAT Logo" 
               className="h-16 w-auto"
             />
