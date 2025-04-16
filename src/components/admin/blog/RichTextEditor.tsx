@@ -53,7 +53,12 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       }),
       TableRow,
       TableHeader,
-      TableCell,
+      TableCell.configure({
+        // Add any specific configuration for table cells if needed
+        HTMLAttributes: {
+          class: 'border border-gray-300 px-2 py-1',
+        }
+      }),
       Placeholder.configure({
         placeholder: 'เริ่มพิมพ์เนื้อหาของคุณที่นี่...',
       }),
