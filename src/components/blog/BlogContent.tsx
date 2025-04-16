@@ -25,7 +25,7 @@ const BlogContent = ({ post }: BlogContentProps) => {
         <div className="prose prose-lg max-w-none">
           <p className="text-xl text-gray-700 leading-relaxed mb-8">{post.excerpt}</p>
           
-          {post.content ? (
+          {'content' in post && post.content ? (
             <div 
               className="prose prose-lg max-w-none"
               dangerouslySetInnerHTML={{ __html: post.content }}

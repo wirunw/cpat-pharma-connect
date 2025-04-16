@@ -67,7 +67,14 @@ export const usePostManager = () => {
       }
     }
     
-    const success = await addBlogPost(newPost, imageUrl);
+    const success = await addBlogPost({
+      title: newPost.title,
+      excerpt: newPost.excerpt,
+      category: newPost.category,
+      status: newPost.status,
+      content: newPost.content || '' // Include content field
+    }, imageUrl);
+    
     if (success) {
       setIsAddDialogOpen(false);
       toast.success('เพิ่มบทความใหม่สำเร็จ');
@@ -115,7 +122,14 @@ export const usePostManager = () => {
       }
     }
     
-    const success = await updateBlogPost({ ...selectedPost, ...updatedPost }, imageUrl);
+    // Ensure content is included in the update
+    const postToUpdate = {
+      ...selectedPost,
+      ...updatedPost,
+      content: updatedPost.content || selectedPost.content || ''
+    };
+    
+    const success = await updateBlogPost(postToUpdate, imageUrl);
     if (success) {
       setIsEditDialogOpen(false);
       toast.success('อัปเดตบทความสำเร็จ');

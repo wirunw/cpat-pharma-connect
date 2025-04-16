@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
@@ -36,7 +37,13 @@ export const useBlogPosts = () => {
   }, []);
 
   const addBlogPost = async (
-    newPost: { title: string; excerpt: string; category: string; status: "draft" | "published" },
+    newPost: { 
+      title: string; 
+      excerpt: string; 
+      category: string; 
+      status: "draft" | "published";
+      content: string; // Add content field
+    },
     imageUrl: string,
   ) => {
     try {
@@ -48,6 +55,7 @@ export const useBlogPosts = () => {
         excerpt: newPost.excerpt,
         category: newPost.category,
         status: newPost.status,
+        content: newPost.content, // Include content field
         image_url: imageUrl,
         thai_date: thaiDate
       };
@@ -76,6 +84,7 @@ export const useBlogPosts = () => {
         excerpt: post.excerpt,
         category: post.category,
         status: post.status,
+        content: 'content' in post ? post.content : null, // Include content field
         image_url: imageUrl
       };
       

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Database } from "@/integrations/supabase/types";
 import { 
@@ -37,13 +38,21 @@ export const BlogPostDialog = ({
   description,
   isSubmitting 
 }: BlogPostDialogProps) => {
-  const [formData, setFormData] = useState(post || {
+  // Update the initial state to include content field with proper type checking
+  const [formData, setFormData] = useState<BlogPost | {
+    title: string;
+    excerpt: string;
+    category: string;
+    status: "draft" | "published";
+    content: string;
+  }>(post || {
     title: "",
     excerpt: "",
     category: "",
     status: "draft" as "draft" | "published",
-    content: "" // Add content field
+    content: "" 
   });
+  
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(post?.image_url || null);
 
@@ -79,7 +88,7 @@ export const BlogPostDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[800px]"> {/* Make dialog wider */}
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -129,7 +138,7 @@ export const BlogPostDialog = ({
             <Label className="text-right pt-2">เนื้อหา</Label>
             <div className="col-span-3">
               <RichTextEditor
-                content={formData.content}
+                content={'content' in formData ? formData.content : ''}
                 onChange={(content) => setFormData({...formData, content})}
               />
             </div>

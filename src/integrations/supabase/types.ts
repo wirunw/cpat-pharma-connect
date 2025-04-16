@@ -12,6 +12,7 @@ export type Database = {
       blog_posts: {
         Row: {
           category: string
+          content: string | null
           created_at: string
           excerpt: string
           id: string
@@ -23,6 +24,7 @@ export type Database = {
         }
         Insert: {
           category: string
+          content?: string | null
           created_at?: string
           excerpt: string
           id?: string
@@ -34,6 +36,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          content?: string | null
           created_at?: string
           excerpt?: string
           id?: string
