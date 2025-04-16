@@ -17,7 +17,9 @@ export const MissionVision = ({ visionContent, missionContent, isAdmin }: Missio
             <h2 className="text-3xl font-bold text-blue-900 mb-6">วิสัยทัศน์</h2>
             <div className="p-6 bg-blue-50 rounded-lg border-l-4 border-blue-600">
               {visionContent && (
-                <EditableContent content={visionContent} isAdmin={isAdmin} />
+                <div className="text-gray-800 leading-relaxed">
+                  <EditableContent content={visionContent} isAdmin={isAdmin} />
+                </div>
               )}
             </div>
           </div>
@@ -26,7 +28,9 @@ export const MissionVision = ({ visionContent, missionContent, isAdmin }: Missio
             <h2 className="text-3xl font-bold text-blue-900 mb-6">พันธกิจ</h2>
             {missionContent && (
               <div className="p-6 bg-blue-50 rounded-lg border-l-4 border-blue-600">
-                <EditableContent content={missionContent} isAdmin={isAdmin} />
+                <div className="text-gray-800 leading-relaxed">
+                  <EditableContent content={missionContent} isAdmin={isAdmin} />
+                </div>
               </div>
             )}
           </div>

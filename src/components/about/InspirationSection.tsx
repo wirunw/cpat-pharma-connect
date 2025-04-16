@@ -24,7 +24,9 @@ export const InspirationSection = ({ founderQuote, isAdmin }: InspirationSection
         <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
           <Card className="bg-white">
             <CardContent className="p-8">
-              <EditableContent content={founderQuote} isAdmin={isAdmin} />
+              <div className="text-gray-800 leading-relaxed">
+                <EditableContent content={founderQuote} isAdmin={isAdmin} />
+              </div>
             </CardContent>
           </Card>
         </div>

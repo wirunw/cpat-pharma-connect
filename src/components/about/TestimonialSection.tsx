@@ -17,7 +17,9 @@ export const TestimonialSection = ({ testimonialContent, isAdmin }: TestimonialS
         
         <div className="grid grid-cols-1 md:grid-cols-1 gap-8 max-w-3xl mx-auto">
           <div className="bg-blue-50 p-6 rounded-lg shadow-md border-l-4 border-blue-600">
-            <EditableContent content={testimonialContent} isAdmin={isAdmin} />
+            <div className="text-gray-800 leading-relaxed">
+              <EditableContent content={testimonialContent} isAdmin={isAdmin} />
+            </div>
           </div>
         </div>
       </div>

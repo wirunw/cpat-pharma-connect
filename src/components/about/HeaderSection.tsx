@@ -13,7 +13,9 @@ export const HeaderSection = ({ headerContent, isAdmin }: HeaderSectionProps) =>
   return (
     <section className="bg-gradient-to-r from-blue-900 to-blue-800 py-16 px-4">
       <div className="container mx-auto max-w-6xl">
-        <EditableContent content={headerContent} isAdmin={isAdmin} />
+        <div className="text-white">
+          <EditableContent content={headerContent} isAdmin={isAdmin} />
+        </div>
       </div>
     </section>
   );

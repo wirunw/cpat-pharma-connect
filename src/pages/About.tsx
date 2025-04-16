@@ -1,9 +1,7 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import MembersSection from "@/components/about/MembersSection";
-import DirectorSection from "@/components/about/DirectorSection";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +12,9 @@ import { StatsSection } from "@/components/about/StatsSection";
 import { InspirationSection } from "@/components/about/InspirationSection";
 import { TestimonialSection } from "@/components/about/TestimonialSection";
 import { CallToAction } from "@/components/about/CallToAction";
-import { executiveMembers, foundingMembers } from "@/data/members";
+import { AboutMembers } from "@/components/about/AboutMembers";
+import { DirectorSectionWrapper } from "@/components/about/DirectorSectionWrapper";
+import { Spinner } from "@/components/shared/Spinner";
 
 const About = () => {
   const { content, isLoading, getContentBySection, getContentById } = useSiteContent('about');
@@ -34,7 +34,15 @@ const About = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-grow flex justify-center items-center">
+          <Spinner />
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   const historyContent = getContentBySection('history');
@@ -44,33 +52,15 @@ const About = () => {
   const founderQuote = getContentById('founder_quote');
   const testimonialContent = getContentById('testimonial');
 
-  // Update board members to match the Member type
-  const boardMembers = executiveMembers.map(member => ({
-    name: member.name,
-    title: member.title || "",
-    image: member.image,
-    email: "",
-    avatarUrl: member.image
-  }));
-
-  // Update founding members similarly
-  const foundingMemberList = foundingMembers.map(member => ({
-    name: member.name,
-    image: member.image,
-    email: "",
-    avatarUrl: member.image
-  }));
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-grow">
         <HeaderSection headerContent={headerContent} isAdmin={isAdmin} />
-        <DirectorSection />
+        <DirectorSectionWrapper isAdmin={isAdmin} />
         <OrganizationStory historyContent={historyContent} isAdmin={isAdmin} />
-        <MembersSection title="คณะกรรมการบริหารวิทยาลัย" members={boardMembers} />
-        <MembersSection title="สมาชิกผู้ร่วมก่อตั้ง" members={foundingMemberList} />
+        <AboutMembers isAdmin={isAdmin} />
         <MissionVision 
           visionContent={visionContent} 
           missionContent={missionContent} 

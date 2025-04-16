@@ -163,16 +163,16 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
   if (content.content_type === 'text' || content.content_type === 'html') {
     return (
       <div className="relative group">
-        {content.title && <h2 className="text-2xl font-bold mb-4 text-white">{content.title}</h2>}
+        {content.title && <h2 className="text-2xl font-bold mb-4">{content.title}</h2>}
         {content.description && (
-          <div className="text-white whitespace-pre-wrap">
+          <div className="whitespace-pre-wrap">
             {content.description.split('\n').map((line, i) => (
               <p key={i} className="mb-2">{line}</p>
             ))}
           </div>
         )}
         {content.content && (
-          <div className="text-white mt-4 whitespace-pre-wrap">
+          <div className="mt-4 whitespace-pre-wrap">
             {content.content.split('\n').map((line, i) => (
               <p key={i} className="mb-2">{line}</p>
             ))}
