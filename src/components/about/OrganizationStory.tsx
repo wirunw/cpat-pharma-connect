@@ -18,8 +18,13 @@ export const OrganizationStory = ({ historyContent, isAdmin }: OrganizationStory
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {historyContent.map((content) => (
-            <div key={content.id} className="bg-white p-8 rounded-lg shadow-md">
-              <EditableContent content={content} isAdmin={isAdmin} />
+            <div 
+              key={content.id} 
+              className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+            >
+              <div className="text-gray-800 leading-relaxed">
+                <EditableContent content={content} isAdmin={isAdmin} />
+              </div>
             </div>
           ))}
         </div>
