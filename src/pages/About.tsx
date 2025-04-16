@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useSiteContent } from "@/hooks/useSiteContent";
@@ -18,44 +18,22 @@ import { Spinner } from "@/components/shared/Spinner";
 
 const About = () => {
   const { content, isLoading, getContentBySection, getContentById } = useSiteContent('about');
-  const { data: isAdmin = false, isLoading: isAdminLoading } = useQuery({
+  const { data: isAdmin = false } = useQuery({
     queryKey: ['isAdmin'],
     queryFn: async () => {
-      try {
-        // Get current session
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('Session:', session);
-        
-        if (!session?.user) {
-          console.log('No session found, user is not logged in');
-          return false;
-        }
-        
-        // Check if user is admin
-        const { data, error } = await supabase.rpc('is_admin', {
-          user_id: session.user.id
-        });
-        
-        if (error) {
-          console.error('Error checking admin status:', error);
-          throw error;
-        }
-        
-        console.log('Admin status:', !!data);
-        return !!data;
-      } catch (error) {
-        console.error('Error in isAdmin query:', error);
-        return false;
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return false;
+      
+      const { data, error } = await supabase.rpc('is_admin', {
+        user_id: session.user.id
+      });
+      
+      if (error) throw error;
+      return !!data;
     }
   });
 
-  // For debugging
-  useEffect(() => {
-    console.log('About page - isAdmin:', isAdmin);
-  }, [isAdmin]);
-
-  if (isLoading || isAdminLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />

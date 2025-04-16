@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,6 @@ import { Pencil } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface TextContentProps {
   content: SiteContent;
@@ -23,11 +22,6 @@ export const TextContent = ({ content, isAdmin }: TextContentProps) => {
   const [editedTitle, setEditedTitle] = useState(content.title || '');
   const [editedDescription, setEditedDescription] = useState(content.description || '');
   const [editedContent, setEditedContent] = useState(content.content || '');
-
-  // For debugging
-  useEffect(() => {
-    console.log('TextContent isAdmin:', isAdmin);
-  }, [isAdmin]);
 
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<SiteContent>) => {
@@ -80,16 +74,16 @@ export const TextContent = ({ content, isAdmin }: TextContentProps) => {
 
   return (
     <div className="relative group">
-      {content.title && <h2 className="text-2xl font-bold mb-4 text-gray-900">{content.title}</h2>}
+      {content.title && <h2 className="text-2xl font-bold mb-4">{content.title}</h2>}
       {content.description && (
-        <div className="whitespace-pre-wrap text-gray-800">
+        <div className="whitespace-pre-wrap">
           {content.description.split('\n').map((line, i) => (
             <p key={i} className="mb-2">{line}</p>
           ))}
         </div>
       )}
       {content.content && (
-        <div className="mt-4 whitespace-pre-wrap text-gray-800">
+        <div className="mt-4 whitespace-pre-wrap">
           {content.content.split('\n').map((line, i) => (
             <p key={i} className="mb-2">{line}</p>
           ))}
@@ -97,24 +91,15 @@ export const TextContent = ({ content, isAdmin }: TextContentProps) => {
       )}
       {isAdmin && (
         <>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="absolute -right-2 -top-2 opacity-100 bg-blue-600 hover:bg-blue-700 text-white hover:text-white z-50 shadow-md"
-                  onClick={() => setIsEditing(true)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>แก้ไขเนื้อหา</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-            
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute -right-4 -top-4 opacity-0 group-hover:opacity-100 bg-white hover:bg-gray-100"
+            onClick={() => setIsEditing(true)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          
           <Dialog open={isEditing} onOpenChange={setIsEditing}>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
