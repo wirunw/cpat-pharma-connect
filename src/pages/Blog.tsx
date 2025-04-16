@@ -13,7 +13,7 @@ const Blog = () => {
   useEffect(() => {
     console.log("Blog component mounted, fetching blog posts...");
     fetchBlogPosts();
-  }, []);
+  }, [fetchBlogPosts]);
 
   return (
     <div className="min-h-screen flex flex-col">

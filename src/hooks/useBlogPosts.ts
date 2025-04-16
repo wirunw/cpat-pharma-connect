@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ export const useBlogPosts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const fetchBlogPosts = async () => {
+  const fetchBlogPosts = useCallback(async () => {
     setIsLoading(true);
     setFetchError(null);
     try {
@@ -35,7 +35,7 @@ export const useBlogPosts = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const addBlogPost = async (
     newPost: { title: string; excerpt: string; category: string; status: "draft" | "published" },
@@ -54,10 +54,11 @@ export const useBlogPosts = () => {
         thai_date: thaiDate
       };
       
+      console.log("Saving new blog post:", newBlogPost);
+      
       const { error } = await supabase
         .from('blog_posts')
-        .insert([newBlogPost])
-        .select();
+        .insert([newBlogPost]);
       
       if (error) throw error;
       

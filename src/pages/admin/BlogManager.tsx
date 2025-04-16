@@ -30,9 +30,29 @@ const BlogManager = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [currentSession, setCurrentSession] = useState<any>(null);
 
   useEffect(() => {
     fetchBlogPosts();
+    
+    // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setCurrentSession(data.session);
+    };
+    
+    checkSession();
+    
+    // ติดตามการเปลี่ยนแปลงสถานะการล็อกอิน
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setCurrentSession(session);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleAddPost = async (newPost: any, imageFile: File | null) => {
@@ -41,21 +61,36 @@ const BlogManager = () => {
     
     if (imageFile) {
       try {
+        // ตรวจสอบว่าผู้ใช้ล็อกอินอยู่หรือไม่
+        if (!currentSession) {
+          toast.error('กรุณาล็อกอินเพื่อทำการอัปโหลดรูปภาพ');
+          setIsSubmitting(false);
+          return;
+        }
+        
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
         const filePath = `blog/${fileName}`;
         
+        console.log('ทำการอัปโหลดไฟล์:', filePath);
+        
         const { error: uploadError, data } = await supabase.storage
           .from('images')
-          .upload(filePath, imageFile);
+          .upload(filePath, imageFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
         
         if (uploadError) throw uploadError;
+        
+        console.log('อัปโหลดไฟล์สำเร็จ, ข้อมูล:', data);
         
         const { data: urlData } = supabase.storage
           .from('images')
           .getPublicUrl(filePath);
           
         imageUrl = urlData.publicUrl;
+        console.log('URL รูปภาพ:', imageUrl);
       } catch (error: any) {
         console.error('Upload error:', error);
         toast.error('อัปโหลดรูปภาพไม่สำเร็จ: ' + error.message);
@@ -80,13 +115,25 @@ const BlogManager = () => {
     
     if (imageFile) {
       try {
+        // ตรวจสอบว่าผู้ใช้ล็อกอินอยู่หรือไม่
+        if (!currentSession) {
+          toast.error('กรุณาล็อกอินเพื่อทำการอัปโหลดรูปภาพ');
+          setIsSubmitting(false);
+          return;
+        }
+        
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
         const filePath = `blog/${fileName}`;
         
+        console.log('ทำการอัปโหลดไฟล์:', filePath);
+        
         const { error: uploadError } = await supabase.storage
           .from('images')
-          .upload(filePath, imageFile);
+          .upload(filePath, imageFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
         
         if (uploadError) throw uploadError;
         
@@ -95,6 +142,7 @@ const BlogManager = () => {
           .getPublicUrl(filePath);
           
         imageUrl = urlData.publicUrl;
+        console.log('URL รูปภาพใหม่:', imageUrl);
       } catch (error: any) {
         console.error('Upload error:', error);
         toast.error('อัปโหลดรูปภาพไม่สำเร็จ: ' + error.message);
