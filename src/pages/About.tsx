@@ -40,6 +40,7 @@ const About = () => {
   const visionContent = getContentById('about_vision');
   const founderQuote = getContentById('founder_quote');
   const testimonialContent = getContentById('testimonial');
+  const directorQuote = getContentById('director_quote');
 
   // Update board members to match the Member type
   const boardMembers = executiveMembers.map(member => ({
@@ -74,6 +75,20 @@ const About = () => {
         
         {/* Dean's Message */}
         <DirectorSection />
+        
+        {/* Director Quote */}
+        {directorQuote && (
+          <section className="py-8 px-4 bg-blue-50">
+            <div className="container mx-auto max-w-4xl">
+              <div className="bg-white p-8 rounded-lg shadow-md border-l-4 border-blue-600">
+                <EditableContent content={directorQuote} isAdmin={isAdmin} />
+                <p className="mt-4 text-right text-blue-800 font-semibold">
+                  - รศ.ดร.ภก. กร ศรเลิศล้ำวาณิช, ผู้อำนวยการวิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
         
         {/* Organization Story */}
         <section className="py-16 px-4 bg-blue-50">
@@ -188,7 +203,7 @@ const About = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-1 gap-8 max-w-3xl mx-auto">
               {testimonialContent && (
-                <div className="bg-blue-50 p-6 rounded-lg">
+                <div className="bg-blue-50 p-6 rounded-lg shadow-md border-l-4 border-blue-600">
                   <EditableContent content={testimonialContent} isAdmin={isAdmin} />
                 </div>
               )}

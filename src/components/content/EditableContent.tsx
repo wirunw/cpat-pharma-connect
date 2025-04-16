@@ -23,6 +23,7 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
   const [editedTitle, setEditedTitle] = useState(content.title || '');
   const [editedDescription, setEditedDescription] = useState(content.description || '');
   const [editedContent, setEditedContent] = useState(content.content || '');
+  const [isUploading, setIsUploading] = useState(false);
 
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<SiteContent>) => {
@@ -52,10 +53,20 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
   });
 
   const handleImageUpload = async (file: File) => {
+    if (!file) return;
+    
+    setIsUploading(true);
     const fileExt = file.name.split('.').pop();
     const fileName = `${crypto.randomUUID()}.${fileExt}`;
     
     try {
+      // Initialize storage bucket if needed
+      await supabase.storage.createBucket('content', {
+        public: true,
+      }).catch(() => {
+        // Bucket might already exist, continue
+      });
+      
       const { error: uploadError } = await supabase.storage
         .from('content')
         .upload(fileName, file);
@@ -67,6 +78,11 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
         .getPublicUrl(fileName);
 
       await updateMutation.mutateAsync({ image_url: publicUrl });
+      
+      toast({
+        title: "อัพโหลดสำเร็จ",
+        description: "อัพโหลดรูปภาพเรียบร้อยแล้ว",
+      });
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -74,6 +90,8 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
         description: "ไม่สามารถอัพโหลดรูปภาพได้ กรุณาลองใหม่อีกครั้ง",
         variant: "destructive",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -105,7 +123,7 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
         <img
           src={content.image_url || '/placeholder.svg'}
           alt={content.title || 'Content image'}
-          className="w-full h-auto"
+          className="w-full h-auto rounded-lg"
         />
         {isAdmin && (
           <>
@@ -119,15 +137,23 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
                 if (file) handleImageUpload(file);
               }}
             />
-            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
               <Button
                 variant="outline"
                 size="icon"
+                className="bg-white hover:bg-gray-100"
                 onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
               >
                 <Upload className="h-4 w-4" />
               </Button>
             </div>
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded-lg">
+                <div className="loading-spinner"></div>
+                <p className="text-white ml-2">อัพโหลด...</p>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -137,16 +163,16 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
   if (content.content_type === 'text' || content.content_type === 'html') {
     return (
       <div className="relative group">
-        {content.title && <h2 className="text-2xl font-bold mb-4">{content.title}</h2>}
+        {content.title && <h2 className="text-2xl font-bold mb-4 text-white">{content.title}</h2>}
         {content.description && (
-          <div className="text-gray-700 whitespace-pre-wrap">
+          <div className="text-white whitespace-pre-wrap">
             {content.description.split('\n').map((line, i) => (
               <p key={i} className="mb-2">{line}</p>
             ))}
           </div>
         )}
         {content.content && (
-          <div className="text-gray-700 mt-4 whitespace-pre-wrap">
+          <div className="text-white mt-4 whitespace-pre-wrap">
             {content.content.split('\n').map((line, i) => (
               <p key={i} className="mb-2">{line}</p>
             ))}
@@ -157,7 +183,7 @@ export const EditableContent = ({ content, isAdmin }: EditableContentProps) => {
             <Button
               variant="outline"
               size="icon"
-              className="absolute -right-4 -top-4 opacity-0 group-hover:opacity-100"
+              className="absolute -right-4 -top-4 opacity-0 group-hover:opacity-100 bg-white hover:bg-gray-100"
               onClick={() => setIsEditing(true)}
             >
               <Pencil className="h-4 w-4" />
