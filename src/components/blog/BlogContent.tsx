@@ -27,7 +27,7 @@ const BlogContent = ({ post }: BlogContentProps) => {
           
           {post.content ? (
             <div 
-              className="prose prose-lg max-w-none"
+              className="prose prose-lg max-w-none overflow-hidden"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           ) : (
