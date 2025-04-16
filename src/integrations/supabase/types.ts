@@ -86,25 +86,37 @@ export type Database = {
       }
       site_content: {
         Row: {
+          content: string | null
+          content_type: string
           description: string | null
           id: string
           image_url: string | null
+          page: string
+          section: string
           title: string | null
           updated_at: string | null
           updated_by: string | null
         }
         Insert: {
+          content?: string | null
+          content_type: string
           description?: string | null
           id: string
           image_url?: string | null
+          page: string
+          section: string
           title?: string | null
           updated_at?: string | null
           updated_by?: string | null
         }
         Update: {
+          content?: string | null
+          content_type?: string
           description?: string | null
           id?: string
           image_url?: string | null
+          page?: string
+          section?: string
           title?: string | null
           updated_at?: string | null
           updated_by?: string | null

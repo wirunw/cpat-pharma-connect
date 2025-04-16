@@ -1,4 +1,3 @@
-
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -7,21 +6,46 @@ import DirectorSection from "@/components/about/DirectorSection";
 import { executiveMembers, foundingMembers } from "@/data/members";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EditableContent } from "@/components/content/EditableContent";
+import { useSiteContent } from "@/hooks/useSiteContent";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from "@/integrations/supabase/client";
 
 const About = () => {
+  const { content, isLoading, getContentBySection } = useSiteContent('about');
+  const { data: isAdmin = false } = useQuery({
+    queryKey: ['isAdmin'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return false;
+      
+      const { data, error } = await supabase.rpc('is_admin', {
+        user_id: session.user.id
+      });
+      
+      if (error) throw error;
+      return !!data;
+    }
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const heroContent = getContentBySection('hero')[0];
+  const historyContent = getContentBySection('history');
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-grow">
-        {/* Header */}
+        {/* Hero Section */}
         <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-16 px-4">
           <div className="container mx-auto max-w-6xl">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">เกี่ยวกับ CPAT</h1>
-            <p className="text-xl max-w-3xl">
-              เรามุ่งมั่นที่จะสร้างโอกาสการเรียนรู้และพัฒนาทักษะการบริหารเภสัชกิจให้แก่เภสัชกรทุกคน
-              เพื่อเตรียมความพร้อมสู่การเป็นผู้นำในวงการเภสัชกรรมของประเทศไทย
-            </p>
+            {heroContent && (
+              <EditableContent content={heroContent} isAdmin={isAdmin} />
+            )}
           </div>
         </section>
         
@@ -37,19 +61,11 @@ const About = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white p-8 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold text-blue-900 mb-4">จุดเริ่มต้น</h3>
-                <p className="text-gray-700">
-                  วิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย (CPAT) ก่อตั้งขึ้นจากความร่วมมือระหว่างสภาเภสัชกรรมและผู้เชี่ยวชาญด้านการบริหารเภสัชกิจจากทั่วประเทศ ด้วยวิสัยทัศน์ที่ต้องการยกระดับวิชาชีพเภสัชกรรมไทยให้ก้าวทันการเปลี่ยนแปลงของโลก
-                </p>
-              </div>
-              
-              <div className="bg-white p-8 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold text-blue-900 mb-4">การเติบโต</h3>
-                <p className="text-gray-700">
-                  ตลอดระยะเวลาที่ผ่านมา CPAT ได้พัฒนาหลักสูตรที่ตอบโจทย์ความต้องการของวงการเภสัชกรรมไทย โดยเน้นการผสมผสานระหว่างทฤษฎีและการปฏิบัติจริง ปัจจุบันเรามีเครือข่ายความร่วมมือกับองค์กรทั้งภาครัฐและเอกชนทั่วประเทศ
-                </p>
-              </div>
+              {historyContent.map((content) => (
+                <div key={content.id} className="bg-white p-8 rounded-lg shadow-md">
+                  <EditableContent content={content} isAdmin={isAdmin} />
+                </div>
+              ))}
             </div>
           </div>
         </section>
