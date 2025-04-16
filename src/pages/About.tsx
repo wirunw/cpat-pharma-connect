@@ -1,9 +1,12 @@
+
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MembersSection from "@/components/about/MembersSection";
 import DirectorSection from "@/components/about/DirectorSection";
 import { executiveMembers, foundingMembers } from "@/data/members";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const About = () => {
   return (
@@ -232,7 +235,7 @@ const About = () => {
               <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold">
                 ดูหลักสูตรทั้งหมด
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-blue-900 hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                 ติดต่อผู้เชี่ยวชาญ
               </Button>
             </div>
