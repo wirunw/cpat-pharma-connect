@@ -1,11 +1,12 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { type SiteContent } from '@/hooks/useSiteContent';
 import { Button } from "@/components/ui/button";
 import { Upload } from 'lucide-react';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface ImageContentProps {
   content: SiteContent;
@@ -19,7 +20,7 @@ export const ImageContent = ({ content, isAdmin }: ImageContentProps) => {
   const [isUploading, setIsUploading] = React.useState(false);
 
   // For debugging
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('ImageContent isAdmin:', isAdmin);
   }, [isAdmin]);
 
@@ -92,42 +93,51 @@ export const ImageContent = ({ content, isAdmin }: ImageContentProps) => {
   };
 
   return (
-    <div className="relative group">
+    <div className="relative">
       <img
         src={content.image_url || '/placeholder.svg'}
         alt={content.title || 'Content image'}
         className="w-full h-auto rounded-lg"
       />
       {isAdmin && (
-        <>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleImageUpload(file);
-            }}
-          />
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-            <Button
-              variant="outline"
-              size="icon"
-              className="bg-white hover:bg-gray-100 z-10"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              <Upload className="h-4 w-4" />
-            </Button>
+        <TooltipProvider>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageUpload(file);
+              }}
+            />
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white hover:text-white z-50 shadow-md opacity-100"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>อัพโหลดรูปภาพ</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
+          
           {isUploading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-lg z-20">
               <div className="loading-spinner"></div>
               <p className="text-white ml-2">อัพโหลด...</p>
             </div>
           )}
-        </>
+        </TooltipProvider>
       )}
     </div>
   );

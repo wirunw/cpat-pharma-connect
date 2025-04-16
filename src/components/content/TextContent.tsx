@@ -9,6 +9,7 @@ import { Pencil } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface TextContentProps {
   content: SiteContent;
@@ -95,60 +96,68 @@ export const TextContent = ({ content, isAdmin }: TextContentProps) => {
         </div>
       )}
       {isAdmin && (
-        <>
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute -right-4 -top-4 opacity-0 group-hover:opacity-100 bg-white hover:bg-gray-100 z-10 shadow-md"
-            onClick={() => setIsEditing(true)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute -right-2 -top-2 opacity-100 bg-blue-600 hover:bg-blue-700 text-white hover:text-white z-50 shadow-md"
+                onClick={() => setIsEditing(true)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>แก้ไขเนื้อหา</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
           
-          <Dialog open={isEditing} onOpenChange={setIsEditing}>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>แก้ไขเนื้อหา</DialogTitle>
-              </DialogHeader>
-              {content.title !== null && (
-                <div className="mb-4">
-                  <label className="text-sm font-medium mb-1 block">หัวข้อ</label>
-                  <Input
-                    value={editedTitle}
-                    onChange={(e) => setEditedTitle(e.target.value)}
-                    placeholder="หัวข้อ"
-                  />
-                </div>
-              )}
-              {content.description !== null && (
-                <div className="mb-4">
-                  <label className="text-sm font-medium mb-1 block">คำอธิบาย</label>
-                  <Textarea
-                    value={editedDescription}
-                    onChange={(e) => setEditedDescription(e.target.value)}
-                    placeholder="คำอธิบาย"
-                    rows={5}
-                  />
-                </div>
-              )}
-              {content.content !== null && (
-                <div className="mb-4">
-                  <label className="text-sm font-medium mb-1 block">เนื้อหา</label>
-                  <Textarea
-                    value={editedContent}
-                    onChange={(e) => setEditedContent(e.target.value)}
-                    placeholder="เนื้อหา"
-                    rows={8}
-                  />
-                </div>
-              )}
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>ยกเลิก</Button>
-                <Button onClick={handleSaveContent}>บันทึก</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </>
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>แก้ไขเนื้อหา</DialogTitle>
+            </DialogHeader>
+            {content.title !== null && (
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-1 block">หัวข้อ</label>
+                <Input
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  placeholder="หัวข้อ"
+                />
+              </div>
+            )}
+            {content.description !== null && (
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-1 block">คำอธิบาย</label>
+                <Textarea
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
+                  placeholder="คำอธิบาย"
+                  rows={5}
+                />
+              </div>
+            )}
+            {content.content !== null && (
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-1 block">เนื้อหา</label>
+                <Textarea
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  placeholder="เนื้อหา"
+                  rows={8}
+                />
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditing(false)}>ยกเลิก</Button>
+              <Button onClick={handleSaveContent}>บันทึก</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
       )}
     </div>
   );
