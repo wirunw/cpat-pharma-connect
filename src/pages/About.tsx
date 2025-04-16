@@ -41,9 +41,21 @@ const About = () => {
   const founderQuote = getContentById('founder_quote');
   const testimonialContent = getContentById('testimonial');
 
+  // Update board members to match the Member type
   const boardMembers = executiveMembers.map(member => ({
-    ...member,
+    name: member.name,
     title: member.title || "",
+    image: member.image,
+    email: "", // Add empty email as per Member type
+    avatarUrl: member.image
+  }));
+
+  // Update founding members similarly
+  const foundingMemberList = foundingMembers.map(member => ({
+    name: member.name,
+    image: member.image,
+    email: "", // Add empty email
+    avatarUrl: member.image
   }));
 
   return (
@@ -51,19 +63,14 @@ const About = () => {
       <Header />
       
       <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-16 px-4">
-          <div className="container mx-auto max-w-6xl">
-            {heroContent && (
-              <EditableContent content={heroContent} isAdmin={isAdmin} />
-            )}
-            {headerContent && (
-              <div className="mt-8 bg-blue-800/50 p-6 rounded-lg">
-                <EditableContent content={headerContent} isAdmin={isAdmin} />
-              </div>
-            )}
-          </div>
-        </section>
+        {/* Header Section */}
+        {headerContent && (
+          <section className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-16 px-4">
+            <div className="container mx-auto max-w-6xl">
+              <EditableContent content={headerContent} isAdmin={isAdmin} />
+            </div>
+          </section>
+        )}
         
         {/* Dean's Message */}
         <DirectorSection />
@@ -95,7 +102,7 @@ const About = () => {
         {/* Founding Members Section */}
         <MembersSection 
           title="สมาชิกผู้ร่วมก่อตั้ง" 
-          members={foundingMembers}
+          members={foundingMemberList}
         />
         
         {/* Mission and Vision */}
