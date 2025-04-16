@@ -147,6 +147,7 @@ export const usePostManager = () => {
     handleAddPost,
     handleUpdatePost,
     handleDeletePost,
-    checkSession
+    checkSession,
+    fetchBlogPosts
   };
 };

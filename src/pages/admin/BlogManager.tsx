@@ -26,11 +26,13 @@ const BlogManager = () => {
     handleAddPost,
     handleUpdatePost,
     handleDeletePost,
-    checkSession
+    checkSession,
+    fetchBlogPosts
   } = usePostManager();
 
   useEffect(() => {
     checkSession();
+    fetchBlogPosts();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
@@ -42,7 +44,7 @@ const BlogManager = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [checkSession]);
+  }, [checkSession, fetchBlogPosts]);
 
   return (
     <ProtectedRoute>

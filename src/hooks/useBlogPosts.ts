@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
@@ -17,16 +16,15 @@ export const useBlogPosts = () => {
     setIsLoading(true);
     setFetchError(null);
     try {
-      console.log("Fetching published blog posts...");
+      console.log("Fetching all blog posts...");
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
-        .eq('status', 'published')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       
-      console.log(`Found ${data?.length || 0} published blog posts`);
+      console.log(`Found ${data?.length || 0} blog posts`);
       setBlogPosts(data || []);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error.message);
