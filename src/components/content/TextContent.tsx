@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,11 @@ export const TextContent = ({ content, isAdmin }: TextContentProps) => {
   const [editedTitle, setEditedTitle] = useState(content.title || '');
   const [editedDescription, setEditedDescription] = useState(content.description || '');
   const [editedContent, setEditedContent] = useState(content.content || '');
+
+  // For debugging
+  useEffect(() => {
+    console.log('TextContent isAdmin:', isAdmin);
+  }, [isAdmin]);
 
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<SiteContent>) => {
@@ -74,16 +79,16 @@ export const TextContent = ({ content, isAdmin }: TextContentProps) => {
 
   return (
     <div className="relative group">
-      {content.title && <h2 className="text-2xl font-bold mb-4">{content.title}</h2>}
+      {content.title && <h2 className="text-2xl font-bold mb-4 text-gray-900">{content.title}</h2>}
       {content.description && (
-        <div className="whitespace-pre-wrap">
+        <div className="whitespace-pre-wrap text-gray-800">
           {content.description.split('\n').map((line, i) => (
             <p key={i} className="mb-2">{line}</p>
           ))}
         </div>
       )}
       {content.content && (
-        <div className="mt-4 whitespace-pre-wrap">
+        <div className="mt-4 whitespace-pre-wrap text-gray-800">
           {content.content.split('\n').map((line, i) => (
             <p key={i} className="mb-2">{line}</p>
           ))}
@@ -94,7 +99,7 @@ export const TextContent = ({ content, isAdmin }: TextContentProps) => {
           <Button
             variant="outline"
             size="icon"
-            className="absolute -right-4 -top-4 opacity-0 group-hover:opacity-100 bg-white hover:bg-gray-100"
+            className="absolute -right-4 -top-4 opacity-0 group-hover:opacity-100 bg-white hover:bg-gray-100 z-10 shadow-md"
             onClick={() => setIsEditing(true)}
           >
             <Pencil className="h-4 w-4" />

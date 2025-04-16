@@ -18,6 +18,11 @@ export const ImageContent = ({ content, isAdmin }: ImageContentProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = React.useState(false);
 
+  // For debugging
+  React.useEffect(() => {
+    console.log('ImageContent isAdmin:', isAdmin);
+  }, [isAdmin]);
+
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<SiteContent>) => {
       const { error } = await supabase
@@ -105,11 +110,11 @@ export const ImageContent = ({ content, isAdmin }: ImageContentProps) => {
               if (file) handleImageUpload(file);
             }}
           />
-          <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
             <Button
               variant="outline"
               size="icon"
-              className="bg-white hover:bg-gray-100"
+              className="bg-white hover:bg-gray-100 z-10"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
@@ -117,7 +122,7 @@ export const ImageContent = ({ content, isAdmin }: ImageContentProps) => {
             </Button>
           </div>
           {isUploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded-lg">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-lg z-20">
               <div className="loading-spinner"></div>
               <p className="text-white ml-2">อัพโหลด...</p>
             </div>
