@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BlogHeader from "@/components/blog/BlogHeader";
@@ -10,7 +10,8 @@ import { useBlogPosts } from "@/hooks/useBlogPosts";
 const Blog = () => {
   const { blogPosts, isLoading, fetchBlogPosts, fetchError } = useBlogPosts();
 
-  React.useEffect(() => {
+  useEffect(() => {
+    console.log("Blog component mounted, fetching blog posts...");
     fetchBlogPosts();
   }, []);
 

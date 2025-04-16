@@ -18,6 +18,10 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
           src={post.image_url || "/placeholder.svg"} 
           alt={post.title} 
           className="w-full h-full object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "/placeholder.svg";
+          }}
         />
       </div>
       <div className="p-6">
@@ -26,7 +30,7 @@ const BlogPostCard = ({ post }: BlogPostCardProps) => {
           <span className="text-sm text-gray-500">{post.thai_date}</span>
         </div>
         <h3 className="text-xl font-bold mb-2 text-blue-900">{post.title}</h3>
-        <p className="text-gray-600 mb-4">{post.excerpt}</p>
+        <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
         <Link to={`/blog/${post.id}`} className="inline-flex items-center text-yellow-600 font-medium hover:text-yellow-700">
           อ่านเพิ่มเติม
           <ArrowRight className="ml-2 h-4 w-4" />

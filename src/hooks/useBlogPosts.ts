@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
@@ -16,13 +17,16 @@ export const useBlogPosts = () => {
     setIsLoading(true);
     setFetchError(null);
     try {
+      console.log("Fetching published blog posts...");
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
+        .eq('status', 'published')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       
+      console.log(`Found ${data?.length || 0} published blog posts`);
       setBlogPosts(data || []);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error.message);
@@ -124,7 +128,7 @@ export const useBlogPosts = () => {
 const getThaiMonth = (month: number) => {
   const thaiMonths = [
     "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุ���าคม", "พฤศจิกายน", "ธันวาคม"
+    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
   ];
   return thaiMonths[month];
 };
