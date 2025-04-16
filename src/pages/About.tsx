@@ -1,3 +1,4 @@
+
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -12,7 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 
 const About = () => {
-  const { content, isLoading, getContentBySection } = useSiteContent('about');
+  const { content, isLoading, getContentBySection, getContentById } = useSiteContent('about');
   const { data: isAdmin = false } = useQuery({
     queryKey: ['isAdmin'],
     queryFn: async () => {
@@ -34,6 +35,16 @@ const About = () => {
 
   const heroContent = getContentBySection('hero')[0];
   const historyContent = getContentBySection('history');
+  const headerContent = getContentById('about_header');
+  const missionContent = getContentById('about_mission');
+  const visionContent = getContentById('about_vision');
+  const founderQuote = getContentById('founder_quote');
+  const testimonialContent = getContentById('testimonial');
+
+  const boardMembers = executiveMembers.map(member => ({
+    ...member,
+    title: member.title || "",
+  }));
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -45,6 +56,11 @@ const About = () => {
           <div className="container mx-auto max-w-6xl">
             {heroContent && (
               <EditableContent content={heroContent} isAdmin={isAdmin} />
+            )}
+            {headerContent && (
+              <div className="mt-8 bg-blue-800/50 p-6 rounded-lg">
+                <EditableContent content={headerContent} isAdmin={isAdmin} />
+              </div>
             )}
           </div>
         </section>
@@ -73,7 +89,7 @@ const About = () => {
         {/* Executive Committee Section */}
         <MembersSection 
           title="คณะกรรมการบริหารวิทยาลัย" 
-          members={executiveMembers}
+          members={boardMembers}
         />
         
         {/* Founding Members Section */}
@@ -89,28 +105,19 @@ const About = () => {
               <div>
                 <h2 className="text-3xl font-bold text-blue-900 mb-6">วิสัยทัศน์</h2>
                 <div className="p-6 bg-blue-50 rounded-lg border-l-4 border-blue-600">
-                  <p className="text-lg text-gray-700">
-                    เป็นสถาบันชั้นนำด้านการบริหารเภสัชกิจที่สร้างผู้นำและนวัตกรในวงการเภสัชกรรมเพื่อพัฒนาระบบสุขภาพของประเทศไทยอย่างยั่งยืน
-                  </p>
+                  {visionContent && (
+                    <EditableContent content={visionContent} isAdmin={isAdmin} />
+                  )}
                 </div>
               </div>
               
               <div>
                 <h2 className="text-3xl font-bold text-blue-900 mb-6">พันธกิจ</h2>
-                <ul className="space-y-4">
-                  <li className="flex items-start">
-                    <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1 flex-shrink-0">1</span>
-                    <p className="text-gray-700">พัฒนาหลักสูตรการศึกษาที่ตอบสนองต่อความต้องการของวงการเภสัชกรรมในปัจจุบันและอนาคต</p>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1 flex-shrink-0">2</span>
-                    <p className="text-gray-700">สร้างเครือข่ายความร่วมมือกับองค์กรทั้งในและต่างประเทศเพื่อแลกเปลี่ยนความรู้และประสบการณ์</p>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1 flex-shrink-0">3</span>
-                    <p className="text-gray-700">ส่งเสริมการวิจัยและพัฒนานวัตกรรมทางการบริหารเภสัชกิจที่ตอบสนองต่อความท้าทายของระบบสาธารณสุขไทย</p>
-                  </li>
-                </ul>
+                {missionContent && (
+                  <div className="p-6 bg-blue-50 rounded-lg border-l-4 border-blue-600">
+                    <EditableContent content={missionContent} isAdmin={isAdmin} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -155,24 +162,14 @@ const About = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card className="bg-white">
-                <CardContent className="p-8">
-                  <p className="text-xl italic text-gray-700 mb-4">
-                    "การศึกษาไม่ได้หยุดเพียงแค่ในห้องเรียน แต่เป็นเส้นทางตลอดชีวิตที่จะพัฒนาคุณให้เติบโตและปรับตัวในโลกที่เปลี่ยนแปลงอยู่เสมอ"
-                  </p>
-                  <p className="font-semibold text-right">- ศ.ภก.ดร. วิชัย สันติมาลีวรกุล</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white">
-                <CardContent className="p-8">
-                  <p className="text-xl italic text-gray-700 mb-4">
-                    "ความรู้ทางเภสัชศาสตร์เมื่อผสานกับทักษะการบริหาร จะสร้างผู้นำที่สามารถยกระดับระบบสาธารณสุขของประเทศได้อย่างแท้จริง"
-                  </p>
-                  <p className="font-semibold text-right">- รศ.ภญ.ดร. สุนทรี วิทยานารถไพศาล</p>
-                </CardContent>
-              </Card>
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
+              {founderQuote && (
+                <Card className="bg-white">
+                  <CardContent className="p-8">
+                    <EditableContent content={founderQuote} isAdmin={isAdmin} />
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </section>
@@ -182,60 +179,12 @@ const About = () => {
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-3xl font-bold text-blue-900 mb-12 text-center">เสียงจากศิษย์เก่า</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Testimonial 1 */}
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <div className="flex items-center mb-4">
-                  <img 
-                    src="/placeholder.svg" 
-                    alt="ภาพศิษย์เก่า" 
-                    className="w-16 h-16 rounded-full mr-4"
-                  />
-                  <div>
-                    <h4 className="font-bold text-blue-900">ภก. สมชาย ใจดี</h4>
-                    <p className="text-sm text-gray-600">เจ้าของร้านยา, รุ่น 2</p>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-8 max-w-3xl mx-auto">
+              {testimonialContent && (
+                <div className="bg-blue-50 p-6 rounded-lg">
+                  <EditableContent content={testimonialContent} isAdmin={isAdmin} />
                 </div>
-                <p className="text-gray-700">
-                  "หลักสูตรของ CPAT ช่วยให้ผมมีมุมมองใหม่ๆ ในการบริหารร้านยา ทำให้ธุรกิจเติบโตขึ้นอย่างมากในช่วง 2 ปีที่ผ่านมา ทั้งเรื่องการบริหารสต็อก การตลาด และการสร้างความสัมพันธ์กับลูกค้า"
-                </p>
-              </div>
-              
-              {/* Testimonial 2 */}
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <div className="flex items-center mb-4">
-                  <img 
-                    src="/placeholder.svg" 
-                    alt="ภาพศิษย์เก่า" 
-                    className="w-16 h-16 rounded-full mr-4"
-                  />
-                  <div>
-                    <h4 className="font-bold text-blue-900">ภญ. วรรณา รักเรียน</h4>
-                    <p className="text-sm text-gray-600">ผู้จัดการฝ่ายเภสัชกรรม โรงพยาบาลเอกชน, รุ่น 1</p>
-                  </div>
-                </div>
-                <p className="text-gray-700">
-                  "ความรู้ด้านการบริหารทรัพยากรและการพัฒนาทีมงานที่ได้จาก CPAT ช่วยให้ฉันสามารถนำพาแผนกเภสัชกรรมผ่านช่วงการเปลี่ยนแปลงครั้งใหญ่ได้อย่างราบรื่น การเรียนที่นี่คุ้มค่ามาก"
-                </p>
-              </div>
-              
-              {/* Testimonial 3 */}
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <div className="flex items-center mb-4">
-                  <img 
-                    src="/placeholder.svg" 
-                    alt="ภาพศิษย์เก่า" 
-                    className="w-16 h-16 rounded-full mr-4"
-                  />
-                  <div>
-                    <h4 className="font-bold text-blue-900">ภญ. มนัสนันท์ พัฒนา</h4>
-                    <p className="text-sm text-gray-600">ผู้บริหารบริษัทยา, รุ่น 3</p>
-                  </div>
-                </div>
-                <p className="text-gray-700">
-                  "การเรียนที่ CPAT ไม่เพียงให้ความรู้ด้านการบริหาร แต่ยังสร้างเครือข่ายวิชาชีพที่กว้างขวาง ทำให้ฉันมีโอกาสได้ร่วมงานกับผู้เชี่ยวชาญหลากหลายสาขา ซึ่งเป็นประโยชน์อย่างมากในการทำงาน"
-                </p>
-              </div>
+              )}
             </div>
           </div>
         </section>

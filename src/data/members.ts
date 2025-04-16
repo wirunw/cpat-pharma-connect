@@ -1,48 +1,178 @@
-import { Member } from '@/types/member';
+export type Member = {
+  id: number;
+  name: string;
+  title?: string;
+  image: string;
+};
 
 export const executiveMembers: Member[] = [
-  { 
-    name: "รศ.ดร.ภก. กร ศรเลิศล้ำวาณิช", 
-    title: "ผู้อำนวยการ", 
-    email: "korn.s@cpat.ac.th",
-    avatarUrl: "/lovable-uploads/968b12a5-5483-4af4-a1e3-b2e2f2ed881f.png"
+  {
+    id: 1,
+    name: "รศ.ดร.ภก. กร ศรเลิศล้ำวาณิช",
+    title: "ผู้อำนวยการวิทยาลัย",
+    image: "/placeholder.svg"
   },
-  { name: "ภญ.รุ่งเพ็ชร สกุลบำรุง", title: "ที่ปรึกษาวิทยาลัย", email: "rungpetch.c@cpat.ac.th" },
-  { name: "ภญ.พนิดา ปัญญางาม", title: "เหรัญญิก", email: "panida.p@cpat.ac.th" },
-  { name: "ภญ.พุศราพร เกษสมบูรณ์", title: "เลขาธิการวิทยาลัย", email: "nusaraporn.k@cpat.ac.th" },
-  { name: "ภญ.หทัยกาญจน์ เชาวลิต", title: "รองผู้อำนวยการวิทยาลัย", email: "hathaikan.c@cpat.ac.th" },
-  { name: "ภก.ผดุงยศ พิสุทธากุล", title: "รองผู้อำนวยการวิทยาลัย", email: "padoongyost.p@cpat.ac.th" },
-  { name: "ภก.อนุชัย ธีระเรื่องไชย", title: "รองผู้อำนวยการวิทยาลัย", email: "anuchai.t@cpat.ac.th" },
-  { name: "ภญ.กุลจิรา อุดมอักษร", title: "รองเลขาธิการวิทยาลัย", email: "khunjira.u@cpat.ac.th" },
-  { name: "ภก.โอสถ เนระพูสี", title: "รองเลขาธิการวิทยาลัย", email: "osot.n@cpat.ac.th" },
-  { 
-    name: "ภก.วิรุณ เวชศิริ", 
-    title: "นายทะเบียน", 
-    email: "wirun.w@cpat.ac.th",
-    avatarUrl: "/lovable-uploads/968b12a5-5483-4af4-a1e3-b2e2f2ed881f.png"
+  {
+    id: 2,
+    name: "ผดุงยศ พิสุทธาดามงคล",
+    title: "รองผู้อำนวยการวิทยาลัย",
+    image: "/placeholder.svg"
   },
+  {
+    id: 3,
+    name: "หทัยกาญจน์ เชาวนพูนผล",
+    title: "รองผู้อำนวยการวิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 4,
+    name: "อนุชัย ธีระเรื่องไชยศรี",
+    title: "รองผู้อำนวยการวิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 5,
+    name: "นุศราพร เกษสมบูรณ์",
+    title: "เลขาธิการวิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 6,
+    name: "กุลจิรา อุดมอักษร",
+    title: "รองเลขาธิการวิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 7,
+    name: "โอสถ เนระพูสี",
+    title: "รองเลขาธิการวิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 8,
+    name: "วิรุณ เวชศิริ",
+    title: "นายทะเบียนวิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 9,
+    name: "พนิดา ปัญญางาม",
+    title: "เหรัญญิกวิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 10,
+    name: "สุทธิพงศ์ หนูฤทธิ์",
+    title: "ประชาสัมพันธ์วิทยาลัย",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 11,
+    name: "ผศ.ดร.ภญ. รุ่งเพ็ชร สกุลบำรุงศิลป์",
+    title: "ที่ปรึกษาวิทยาลัย",
+    image: "/placeholder.svg"
+  }
 ];
 
 export const foundingMembers: Member[] = [
-  { 
-    name: "ภก.ทวีศักดิ์ สีทองสุข", 
-    title: "สมาชิกผู้ร่วมก่อตั้ง", 
-    email: "thaweesak01@gmail.com",
-    avatarUrl: "/lovable-uploads/968b12a5-5483-4af4-a1e3-b2e2f2ed881f.png"
+  {
+    id: 1,
+    name: "กุสาวดี เมลืองนนท์",
+    image: "/placeholder.svg"
   },
-  { name: "ภญ.สุทธิพงศ์ หนูฤทธิ์", title: "ประชาสัมพันธ์วิทยาลัย", email: "sutthipong.n@cpat.ac.th" },
-  { name: "ภญ.จิราพร ลิ้มปานะพันธุ์", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "jiraporn.l@chula.ac.th" },
-  { name: "ภญ.บุษกร เลิศวัฒนานนท์", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "busakornlee@gmail.com" },
-  { name: "ภก.ธีระ ฉกาจนโรคมนตรี", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "-" },
-  { name: "ภญ.ซะอรสิน สุขศรีวงศ์", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "chaoncin.s@cpat.ac.th" },
-  { name: "ภก.วิทยา กุลสมบูรณ์", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "vithaya.k@chula.ac.th" },
-  { name: "ภญ.ศรีเพ็ญ ต้นติเวสส", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "stantivess@gmail.com" },
-  { name: "ภญ.วรรณี ชัยเฉลิมพล", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "wannee.c@cpat.ac.th" },
-  { 
-    name: "ภก.อาทร ริ้วไพบูลย์", 
-    title: "สมาชิกผู้ร่วมก่อตั้ง", 
-    email: "arthorn.rie@moh.go.th",
-    avatarUrl: "/lovable-uploads/968b12a5-5483-4af4-a1e3-b2e2f2ed881f.png"
+  {
+    id: 2,
+    name: "คมกฤช ศรีไสว",
+    image: "/placeholder.svg"
   },
-  { name: "ภญ.เนตรนภิส สุชนวนิช", title: "สมาชิกผู้ร่วมก่อตั้ง", email: "netnapis.s@hitap.net" },
+  {
+    id: 3,
+    name: "จิตติศักดิ์ คำต้น",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 4,
+    name: "จิราพร ลิ้มปานานนท์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 5,
+    name: "ชะอรสิน สุขศรีวงศ์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 6,
+    name: "ทวีศักดิ์ สีทองสุรภณา",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 7,
+    name: "เนตรนภิส สุชนวนิช",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 8,
+    name: "บุรินทร์ ต ศรีวงษ์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 9,
+    name: "บุษกร เลิศวัฒนสิวลี",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 10,
+    name: "วรรณี ชัยเฉลิมพงษ์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 11,
+    name: "วิทยา กุลสมบูรณ์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 12,
+    name: "วีรยุทธ์ เลิศนที",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 13,
+    name: "วีรวัฒน์ มีแก้ว",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 14,
+    name: "สุจินติ นิทัศน์ปกรณ์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 15,
+    name: "สุรศักดิ์ ไชยสงค์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 16,
+    name: "สุรศักดิ์ เสาแก้ว",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 17,
+    name: "อนุชิต เทพสี",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 18,
+    name: "อนุวัตร เลิศพิทักษ์สุนทร์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 19,
+    name: "อาทร ริ้วไพบูลย์",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 20,
+    name: "อินทิรา กาญจนพิบูลย์",
+    image: "/placeholder.svg"
+  }
 ];
