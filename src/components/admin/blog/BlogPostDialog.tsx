@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Database } from "@/integrations/supabase/types";
 import { 
@@ -15,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
+import { RichTextEditor } from "@/components/admin/blog/RichTextEditor";
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 
@@ -41,7 +41,8 @@ export const BlogPostDialog = ({
     title: "",
     excerpt: "",
     category: "",
-    status: "draft" as "draft" | "published"
+    status: "draft" as "draft" | "published",
+    content: "" // Add content field
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(post?.image_url || null);
@@ -68,7 +69,8 @@ export const BlogPostDialog = ({
       title: "",
       excerpt: "",
       category: "",
-      status: "draft" as "draft" | "published"
+      status: "draft" as "draft" | "published",
+      content: ""
     });
     setImageFile(null);
     setImagePreview(post?.image_url || null);
@@ -77,7 +79,7 @@ export const BlogPostDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[800px]"> {/* Make dialog wider */}
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -124,7 +126,16 @@ export const BlogPostDialog = ({
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="image" className="text-right pt-2">รูปภาพ</Label>
+            <Label className="text-right pt-2">เนื้อหา</Label>
+            <div className="col-span-3">
+              <RichTextEditor
+                content={formData.content}
+                onChange={(content) => setFormData({...formData, content})}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="image" className="text-right pt-2">รูปภาพหลัก</Label>
             <div className="col-span-3">
               <div className="flex items-center gap-4">
                 <div className="border border-dashed border-gray-300 rounded-md p-4 w-full">

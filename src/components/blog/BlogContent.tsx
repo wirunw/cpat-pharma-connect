@@ -25,13 +25,20 @@ const BlogContent = ({ post }: BlogContentProps) => {
         <div className="prose prose-lg max-w-none">
           <p className="text-xl text-gray-700 leading-relaxed mb-8">{post.excerpt}</p>
           
-          <div className="bg-blue-50 p-6 rounded-md mb-8">
-            <p className="text-blue-800 font-medium mb-2">หมายเหตุ:</p>
-            <p className="text-gray-700">
-              ขณะนี้เรากำลังพัฒนาระบบเพื่อแสดงเนื้อหาบทความเต็มรูปแบบ 
-              โปรดติดตามการอัปเดตในเร็วๆ นี้
-            </p>
-          </div>
+          {post.content ? (
+            <div 
+              className="prose prose-lg max-w-none"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          ) : (
+            <div className="bg-blue-50 p-6 rounded-md mb-8">
+              <p className="text-blue-800 font-medium mb-2">หมายเหตุ:</p>
+              <p className="text-gray-700">
+                ขณะนี้เรากำลังพัฒนาระบบเพื่อแสดงเนื้อหาบทความเต็มรูปแบบ 
+                โปรดติดตามการอัปเดตในเร็วๆ นี้
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </section>
