@@ -1,10 +1,8 @@
 import React from "react";
-import { ArrowRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import MembersSection from "@/components/about/MembersSection";
+import DirectorSection from "@/components/about/DirectorSection";
 import { executiveMembers, foundingMembers } from "@/data/members";
 
 const About = () => {
@@ -25,37 +23,7 @@ const About = () => {
         </section>
         
         {/* Dean's Message */}
-        <section className="py-16 px-4 bg-white">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="md:w-1/3">
-                <img 
-                  src="/placeholder.svg" 
-                  alt="คณบดี CPAT" 
-                  className="rounded-lg shadow-md w-full"
-                />
-              </div>
-              <div className="md:w-2/3">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6">สารจากผู้อำนวยการ</h2>
-                <div className="text-gray-700 space-y-4">
-                  <p>
-                    สวัสดีครับ ในนามของวิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย ผมขอต้อนรับทุกท่านเข้าสู่แหล่งการเรียนรู้ที่จะพัฒนาศักยภาพของเภสัชกรไทยสู่ความเป็นเลิศทางการบริหาร
-                  </p>
-                  <p>
-                    วิทยาลัยของเราเป็นสถาบันที่มุ่งเน้นการผสมผสานความรู้ทางเภสัชศาสตร์เข้ากับทักษะการบริหารจัดการสมัยใหม่ เพื่อสร้างผู้นำในวงการเภสัชกรรมที่พร้อมรับมือกับความท้าทายในยุคที่เทคโนโลยีและนวัตกรรมเปลี่ยนแปลงอย่างรวดเร็ว
-                  </p>
-                  <p>
-                    เราเชื่อว่าการศึกษาที่มีคุณภาพจะเป็นรากฐานสำคัญในการพัฒนาระบบสาธารณสุขของประเทศ ผ่านการสร้างบุคลากรที่มีทั้งความรู้และความสามา���ถในการบริหารจัดการทรัพยากรอย่างมีประสิทธิภาพ
-                  </p>
-                  <p className="font-semibold">
-                    รศ.ดร.ภก. กร ศรเลิศล้ำวาณิช<br />
-                    ผู้อำนวยการวิทยาลัยการบริหารเภสัชกิจแห่งประเทศไทย
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <DirectorSection />
         
         {/* Organization Story */}
         <section className="py-16 px-4 bg-blue-50">
