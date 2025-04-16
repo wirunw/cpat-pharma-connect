@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit2, FileText, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 
@@ -38,10 +39,12 @@ export const BlogPostCard = ({ post, onEdit, onDelete }: BlogPostCardProps) => {
             <h3 className="text-xl font-bold mb-2">{post.title}</h3>
             <p className="text-gray-600 text-sm flex-grow mb-4">{post.excerpt}</p>
             <div className="flex justify-between items-center mt-auto">
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <FileText className="h-4 w-4" />
-                <span>ดูตัวอย่าง</span>
-              </Button>
+              <Link to={`/blog/${post.id}`}>
+                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                  <FileText className="h-4 w-4" />
+                  <span>ดูตัวอย่าง</span>
+                </Button>
+              </Link>
               <div className="flex gap-2">
                 <Button 
                   variant="outline" 
