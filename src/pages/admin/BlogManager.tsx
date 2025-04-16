@@ -1,172 +1,48 @@
 
-import React, { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
-import { BlogPostCard } from "@/components/admin/blog/BlogPostCard";
 import { BlogPostDialog } from "@/components/admin/blog/BlogPostDialog";
 import { DeleteBlogPostDialog } from "@/components/admin/blog/DeleteBlogPostDialog";
-import { useBlogPosts } from "@/hooks/useBlogPosts";
-
-type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
+import { BlogPostTabs } from "@/components/admin/blog/BlogPostTabs";
+import { usePostManager } from "@/hooks/usePostManager";
+import { supabase } from "@/integrations/supabase/client";
 
 const BlogManager = () => {
-  const { 
-    blogPosts, 
-    isLoading, 
-    fetchBlogPosts, 
-    addBlogPost, 
-    updateBlogPost, 
-    deleteBlogPost 
-  } = useBlogPosts();
-
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
-  const [currentSession, setCurrentSession] = useState<any>(null);
+  const {
+    blogPosts,
+    isLoading,
+    isAddDialogOpen,
+    setIsAddDialogOpen,
+    isEditDialogOpen,
+    setIsEditDialogOpen,
+    isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    isSubmitting,
+    selectedPost,
+    setSelectedPost,
+    handleAddPost,
+    handleUpdatePost,
+    handleDeletePost,
+    checkSession
+  } = usePostManager();
 
   useEffect(() => {
-    fetchBlogPosts();
-    
-    // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setCurrentSession(data.session);
-    };
-    
     checkSession();
     
-    // ติดตามการเปลี่ยนแปลงสถานะการล็อกอิน
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setCurrentSession(session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        console.log("User signed out, redirecting to login");
+        window.location.href = "/admin/login";
       }
-    );
+    });
     
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
-
-  const handleAddPost = async (newPost: any, imageFile: File | null) => {
-    setIsSubmitting(true);
-    let imageUrl = '/placeholder.svg';
-    
-    if (imageFile) {
-      try {
-        // ตรวจสอบว่าผู้ใช้ล็อกอินอยู่หรือไม่
-        if (!currentSession) {
-          toast.error('กรุณาล็อกอินเพื่อทำการอัปโหลดรูปภาพ');
-          setIsSubmitting(false);
-          return;
-        }
-        
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-        const filePath = `blog/${fileName}`;
-        
-        console.log('ทำการอัปโหลดไฟล์:', filePath);
-        
-        const { error: uploadError, data } = await supabase.storage
-          .from('images')
-          .upload(filePath, imageFile, {
-            cacheControl: '3600',
-            upsert: false
-          });
-        
-        if (uploadError) throw uploadError;
-        
-        console.log('อัปโหลดไฟล์สำเร็จ, ข้อมูล:', data);
-        
-        const { data: urlData } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-          
-        imageUrl = urlData.publicUrl;
-        console.log('URL รูปภาพ:', imageUrl);
-      } catch (error: any) {
-        console.error('Upload error:', error);
-        toast.error('อัปโหลดรูปภาพไม่สำเร็จ: ' + error.message);
-        setIsSubmitting(false);
-        return;
-      }
-    }
-    
-    const success = await addBlogPost(newPost, imageUrl);
-    if (success) {
-      setIsAddDialogOpen(false);
-      toast.success('เพิ่มบทความใหม่สำเร็จ');
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleUpdatePost = async (updatedPost: any, imageFile: File | null) => {
-    if (!selectedPost) return;
-    
-    setIsSubmitting(true);
-    let imageUrl = selectedPost.image_url || '/placeholder.svg';
-    
-    if (imageFile) {
-      try {
-        // ตรวจสอบว่าผู้ใช้ล็อกอินอยู่หรือไม่
-        if (!currentSession) {
-          toast.error('กรุณาล็อกอินเพื่อทำการอัปโหลดรูปภาพ');
-          setIsSubmitting(false);
-          return;
-        }
-        
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-        const filePath = `blog/${fileName}`;
-        
-        console.log('ทำการอัปโหลดไฟล์:', filePath);
-        
-        const { error: uploadError } = await supabase.storage
-          .from('images')
-          .upload(filePath, imageFile, {
-            cacheControl: '3600',
-            upsert: false
-          });
-        
-        if (uploadError) throw uploadError;
-        
-        const { data: urlData } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-          
-        imageUrl = urlData.publicUrl;
-        console.log('URL รูปภาพใหม่:', imageUrl);
-      } catch (error: any) {
-        console.error('Upload error:', error);
-        toast.error('อัปโหลดรูปภาพไม่สำเร็จ: ' + error.message);
-        setIsSubmitting(false);
-        return;
-      }
-    }
-    
-    const success = await updateBlogPost({ ...selectedPost, ...updatedPost }, imageUrl);
-    if (success) {
-      setIsEditDialogOpen(false);
-      toast.success('อัปเดตบทความสำเร็จ');
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleDeletePost = async () => {
-    if (!selectedPost) return;
-    const success = await deleteBlogPost(selectedPost.id);
-    if (success) {
-      setIsDeleteDialogOpen(false);
-      toast.success('ลบบทความสำเร็จ');
-    }
-  };
+  }, [checkSession]);
 
   return (
     <ProtectedRoute>
@@ -182,88 +58,18 @@ const BlogManager = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="all">
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">ทั้งหมด</TabsTrigger>
-            <TabsTrigger value="published">เผยแพร่แล้ว</TabsTrigger>
-            <TabsTrigger value="draft">ฉบับร่าง</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all">
-            {isLoading ? (
-              <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
-            ) : blogPosts.length > 0 ? (
-              <div className="space-y-4">
-                {blogPosts.map(post => (
-                  <BlogPostCard 
-                    key={post.id} 
-                    post={post} 
-                    onEdit={(post) => {
-                      setSelectedPost(post);
-                      setIsEditDialogOpen(true);
-                    }} 
-                    onDelete={(post) => {
-                      setSelectedPost(post);
-                      setIsDeleteDialogOpen(true);
-                    }} 
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">ยังไม่มีบทความ</div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="published">
-            {isLoading ? (
-              <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
-            ) : blogPosts.filter(post => post.status === 'published').length > 0 ? (
-              <div className="space-y-4">
-                {blogPosts.filter(post => post.status === 'published').map(post => (
-                  <BlogPostCard 
-                    key={post.id} 
-                    post={post} 
-                    onEdit={(post) => {
-                      setSelectedPost(post);
-                      setIsEditDialogOpen(true);
-                    }} 
-                    onDelete={(post) => {
-                      setSelectedPost(post);
-                      setIsDeleteDialogOpen(true);
-                    }} 
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">ยังไม่มีบทความที่เผยแพร่</div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="draft">
-            {isLoading ? (
-              <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
-            ) : blogPosts.filter(post => post.status === 'draft').length > 0 ? (
-              <div className="space-y-4">
-                {blogPosts.filter(post => post.status === 'draft').map(post => (
-                  <BlogPostCard 
-                    key={post.id} 
-                    post={post} 
-                    onEdit={(post) => {
-                      setSelectedPost(post);
-                      setIsEditDialogOpen(true);
-                    }} 
-                    onDelete={(post) => {
-                      setSelectedPost(post);
-                      setIsDeleteDialogOpen(true);
-                    }} 
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">ยังไม่มีบทความฉบับร่าง</div>
-            )}
-          </TabsContent>
-        </Tabs>
+        <BlogPostTabs 
+          blogPosts={blogPosts}
+          isLoading={isLoading}
+          onEdit={(post) => {
+            setSelectedPost(post);
+            setIsEditDialogOpen(true);
+          }}
+          onDelete={(post) => {
+            setSelectedPost(post);
+            setIsDeleteDialogOpen(true);
+          }}
+        />
 
         <BlogPostDialog
           isOpen={isAddDialogOpen}
