@@ -41,7 +41,11 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const addImage = () => {
     const url = window.prompt('Enter image URL');
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      // Use insertContent instead of setImage which is not available
+      editor.chain().focus().insertContent({
+        type: 'image',
+        attrs: { src: url }
+      }).run();
     }
   };
 
